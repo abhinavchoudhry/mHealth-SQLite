@@ -1,6 +1,9 @@
 import sqlite3
 
-conn = sqlite3.connect('mhealth_local.db')
+# Custom path
+# db_path = '/path/to/your/database/mhealth_local.db'
+# conn = sqlite3.connect(db_path)
+conn = sqlite3.connect('create_table/mhealth_local.db')
 cursor = conn.cursor()
 
 # 1. create_daily_activity_fact_table

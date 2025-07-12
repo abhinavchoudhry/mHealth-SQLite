@@ -1,4 +1,8 @@
 import sqlite3
+
+# Custom path
+# db_path = '/path/to/your/database/mhealth_local.db'
+# conn = sqlite3.connect(db_path)
 conn = sqlite3.connect('mhealth_local.db')
 cursor = conn.cursor()
 
