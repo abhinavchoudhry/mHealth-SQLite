@@ -59,12 +59,19 @@ cursor.execute('INSERT INTO exercise_log_fact (exercise_library_dim_id, log_date
 
 #insert into table routine_exercise_fact
 cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (1, 1, 12, 3, 20, 'kg'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (1, 7, 10, 3, 15, 'kg'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (1, 8, 5, 3, 0, 'lb'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (1, 9, 12, 3, 40, 'lb'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (2, 1, 12, 3, 20, 'kg'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (2, 4, 60, 0, 0, 'lb'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (2, 6, 15, 3, 0, 'lb'))
 
 #insert into table user_add_exercise_fact
 cursor.execute('INSERT INTO user_add_exercise_fact (user_dim_id, exercise_library_dim_id, date_added) VALUES (?, ?, ?);', (1, 1, '2025-06-01'))
 
 #insert into table workout_routine_fact
 cursor.execute('INSERT INTO workout_routine_fact (user_dim_id, workout_routine_name, created_at, is_ai_generated) VALUES (?, ?, ?, ?);', (1, 'Morning Routine', '2025-06-01 06:00:00', 0))
+cursor.execute('INSERT INTO workout_routine_fact (user_dim_id, workout_routine_name, created_at, is_ai_generated) VALUES (?, ?, ?, ?);', (1, 'Quick Full Body', '2025-07-01 06:00:00', 0))
 
 #insert into table active_energy_burned_original
 cursor.execute('INSERT INTO active_energy_burned_original (active_energy_burned, unit, time_from, time_to, source_platform, source_device_id, source_name, recording_method) VALUES (?, ?, ?, ?, ?, ?, ?, ?);', (49.7, 'calories', '2025-06-01 00:00:00', '2025-06-01 00:59:59', 'Google Fit', 'device123', 'Pixel 7', 'automated'))
