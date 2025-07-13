@@ -1,5 +1,7 @@
 CREATE TABLE daily_activity_fact (
-    daily_activity_fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    daily_activity_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     date TEXT,
     steps INTEGER,
     calories REAL,

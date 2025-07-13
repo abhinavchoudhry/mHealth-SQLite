@@ -1,5 +1,7 @@
 CREATE TABLE heart_rate_original (
-    heart_rate_original_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    heart_rate_original_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     heart_rate REAL,
     unit TEXT,
     time_from TEXT,

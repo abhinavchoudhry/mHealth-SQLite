@@ -1,5 +1,7 @@
 CREATE TABLE steps_original (
-    steps_original_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    steps_original_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     steps INTEGER,
     unit TEXT,
     time_from TEXT,

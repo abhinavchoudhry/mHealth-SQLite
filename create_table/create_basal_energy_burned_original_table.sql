@@ -1,5 +1,7 @@
 CREATE TABLE basal_energy_burned_original (
-    basal_energy_burned_original_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    basal_energy_burned_original_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     basal_energy_burned REAL,
     unit TEXT,
     time_from TEXT,

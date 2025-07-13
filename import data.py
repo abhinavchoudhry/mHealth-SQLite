@@ -7,7 +7,7 @@ conn = sqlite3.connect('mhealth_local.db')
 cursor = conn.cursor()
 
 #insert into table user_dim
-cursor.execute('INSERT INTO user_dim (username, pwd, email, first_name, last_name, dob, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?);', ('johndoe', 'password123', 'john@example.com', 'John', 'Doe', '1990-01-01', '1234567890'))
+cursor.execute('INSERT INTO user_dim (username, pwd, email, first_name, last_name, dob, phone_number, sex, weight, weight_unit, height, height_unit, age, RHR, PHR, chatbot_summary, user_goal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', ('johndoe', 'password123', 'john@example.com', 'John', 'Doe', '01/01/20001', '(123)-456-7890', 'male', '67.5', 'lbs', '70.8661', 'in', '53', '', '', '', ''))
 
 #insert into table exercise_library_dim
 cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning) VALUES (?, ?, ?, ?, ?, ?);', ('Push Up', 'Chest', 'Push-up exercise', 'None', 'Lower your body and push back up', 'Avoid arching back'))
@@ -64,7 +64,7 @@ cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exer
 cursor.execute('INSERT INTO user_add_exercise_fact (user_dim_id, exercise_library_dim_id, date_added) VALUES (?, ?, ?);', (1, 1, '2025-06-01'))
 
 #insert into table workout_routine_fact
-cursor.execute('INSERT INTO workout_routine_fact (user_dim_id, workout_routine_name, created_at, is_ai_generated, repetitions, sets, weight) VALUES (?, ?, ?, ?, ?, ?, ?);', (1, 'Morning Routine', '2025-06-01 06:00:00', 0, 10, 3, 15))
+cursor.execute('INSERT INTO workout_routine_fact (user_dim_id, workout_routine_name, created_at, is_ai_generated) VALUES (?, ?, ?, ?);', (1, 'Morning Routine', '2025-06-01 06:00:00', 0))
 
 #insert into table active_energy_burned_original
 cursor.execute('INSERT INTO active_energy_burned_original (active_energy_burned, unit, time_from, time_to, source_platform, source_device_id, source_name, recording_method) VALUES (?, ?, ?, ?, ?, ?, ?, ?);', (49.7, 'calories', '2025-06-01 00:00:00', '2025-06-01 00:59:59', 'Google Fit', 'device123', 'Pixel 7', 'automated'))

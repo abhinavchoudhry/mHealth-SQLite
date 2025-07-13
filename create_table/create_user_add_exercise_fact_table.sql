@@ -1,5 +1,7 @@
 CREATE TABLE user_add_exercise_fact (
-    user_add_exercise_fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_add_exercise_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     user_dim_id INTEGER,
     exercise_library_dim_id INTEGER,
     date_added TEXT,

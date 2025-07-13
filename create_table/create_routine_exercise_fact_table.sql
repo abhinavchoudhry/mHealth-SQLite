@@ -1,5 +1,7 @@
 CREATE TABLE routine_exercise_fact (
-    routine_exercise_fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    routine_exercise_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     workout_routine_fact_id INTEGER,
     exercise_id INTEGER,
     repetitions INTEGER,

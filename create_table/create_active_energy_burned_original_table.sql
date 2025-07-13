@@ -1,5 +1,7 @@
 CREATE TABLE active_energy_burned_original (
-    active_energy_burned_original_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    active_energy_burned_original_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     active_energy_burned REAL,
     unit TEXT,
     time_from TEXT,

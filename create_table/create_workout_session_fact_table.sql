@@ -1,5 +1,7 @@
 CREATE TABLE workout_session_fact (
-    workout_session_fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    workout_session_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     workout_name TEXT,
     workout_date TEXT,
     duration_min REAL,

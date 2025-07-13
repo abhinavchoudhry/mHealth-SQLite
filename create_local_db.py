@@ -3,13 +3,15 @@ import sqlite3
 # Custom path
 # db_path = '/path/to/your/database/mhealth_local.db'
 # conn = sqlite3.connect(db_path)
-conn = sqlite3.connect('create_table/mhealth_local.db')
+conn = sqlite3.connect('mhealth_local.db')
 cursor = conn.cursor()
 
 # 1. create_daily_activity_fact_table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS daily_activity_fact (
-    daily_activity_fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    daily_activity_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     date TEXT,
     steps INTEGER,
     calories REAL,
@@ -26,7 +28,9 @@ CREATE TABLE IF NOT EXISTS daily_activity_fact (
 # 2. create_daily_sleep_fact_table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS daily_sleep_fact (
-    daily_sleep_fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    daily_sleep_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     date TEXT,
     total_sleep_minutes INTEGER,
     awake_minutes INTEGER,
@@ -41,7 +45,9 @@ CREATE TABLE IF NOT EXISTS daily_sleep_fact (
 # 3. create_exercise_log_fact_table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS exercise_log_fact (
-    exercise_log_fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    exercise_log_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     exercise_library_dim_id INTEGER,
     log_date TEXT,
     log_time TEXT,
@@ -53,7 +59,9 @@ CREATE TABLE IF NOT EXISTS exercise_log_fact (
 # 4. Create routine_exercise_fact table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS routine_exercise_fact (
-    routine_exercise_fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    routine_exercise_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     workout_routine_fact_id INTEGER,
     exercise_id INTEGER,
     repetitions INTEGER,
@@ -68,7 +76,9 @@ CREATE TABLE IF NOT EXISTS routine_exercise_fact (
 # 5. Create user_add_exercise_fact table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS user_add_exercise_fact (
-    user_add_exercise_fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_add_exercise_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     user_dim_id INTEGER,
     exercise_library_dim_id INTEGER,
     date_added TEXT,
@@ -80,22 +90,26 @@ CREATE TABLE IF NOT EXISTS user_add_exercise_fact (
 # 6. Create workout_routine_fact table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS workout_routine_fact (
-    workout_routine_fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_dim_id INTEGER,
-    workout_routine_name TEXT,
-    created_at TEXT,
-    is_ai_generated INTEGER, -- 1 = true, 0 = false
-    repetitions INTEGER,
-    sets INTEGER,
-    weight INTEGER,
-    FOREIGN KEY (user_dim_id) REFERENCES user_dim(user_dim_id)
+    workout_routine_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
+    user_dim_id             INTEGER,
+    workout_routine_name    TEXT,
+    created_at              TEXT,
+    is_ai_generated         INTEGER, -- 1 = true, 0 = false
+    FOREIGN KEY (
+        user_dim_id
+    )
+    REFERENCES user_dim (user_dim_id)
 );
 ''')
 
 # 7. Create workout_session_fact table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS workout_session_fact (
-    workout_session_fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    workout_session_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     workout_name TEXT,
     workout_date TEXT,
     duration_min REAL,
@@ -110,7 +124,9 @@ CREATE TABLE IF NOT EXISTS workout_session_fact (
 # 8. Create active_energy_burned_original table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS active_energy_burned_original (
-    active_energy_burned_original_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    active_energy_burned_original_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     active_energy_burned REAL,
     unit TEXT,
     time_from TEXT,
@@ -125,7 +141,9 @@ CREATE TABLE IF NOT EXISTS active_energy_burned_original (
 # 9. Create basal_energy_burned_original table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS basal_energy_burned_original (
-    basal_energy_burned_original_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    basal_energy_burned_original_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     basal_energy_burned REAL,
     unit TEXT,
     time_from TEXT,
@@ -140,7 +158,9 @@ CREATE TABLE IF NOT EXISTS basal_energy_burned_original (
 # 10. Create heart_rate_original table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS heart_rate_original (
-    heart_rate_original_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    heart_rate_original_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     heart_rate REAL,
     unit TEXT,
     time_from TEXT,
@@ -155,7 +175,9 @@ CREATE TABLE IF NOT EXISTS heart_rate_original (
 # 11. Create steps_original table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS steps_original (
-    steps_original_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    steps_original_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     steps INTEGER,
     unit TEXT,
     time_from TEXT,
@@ -170,7 +192,9 @@ CREATE TABLE IF NOT EXISTS steps_original (
 # 12. Create workout_original table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS workout_original (
-    workout_original_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    workout_original_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     workout_activity_type TEXT,
     total_energy_burned REAL,
     total_energy_burned_unit TEXT,
@@ -190,21 +214,35 @@ CREATE TABLE IF NOT EXISTS workout_original (
 # 13. Create user_dim table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS user_dim (
-    user_dim_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT,
-    pwd TEXT,
-    email TEXT,
-    first_name TEXT,
-    last_name TEXT,
-    dob TEXT,
-    phone_number TEXT
+    user_dim_id     INTEGER PRIMARY KEY AUTOINCREMENT
+                            UNIQUE
+                            NOT NULL,
+    username        TEXT    NOT NULL,
+    pwd             TEXT    NOT NULL,
+    email           TEXT    NOT NULL,
+    first_name      TEXT    NOT NULL,
+    last_name       TEXT    NOT NULL,
+    dob             TEXT    NOT NULL,
+    phone_number    TEXT    NOT NULL,
+    sex             TEXT    NOT NULL,
+    weight          REAL    NOT NULL,
+    weight_unit     TEXT    NOT NULL,
+    height          REAL    NOT NULL,
+    height_unit     TEXT    NOT NULL,
+    age             INTEGER NOT NULL,
+    RHR             REAL,
+    PHR             TEXT,
+    chatbot_summary TEXT,
+    user_goal       TEXT
 );
 ''')
 
 # 14. Create exercise_library_dim table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS exercise_library_dim (
-    exercise_library_dim_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    exercise_library_dim_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     exercise_name TEXT,
     target_area TEXT,
     description TEXT,

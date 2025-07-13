@@ -1,5 +1,7 @@
 CREATE TABLE exercise_log_fact (
-    exercise_log_fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    exercise_log_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     exercise_library_dim_id INTEGER,
     log_date TEXT,
     log_time TEXT,

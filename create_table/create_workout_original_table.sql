@@ -1,5 +1,7 @@
 CREATE TABLE workout_original (
-    workout_original_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    workout_original_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     workout_activity_type TEXT,
     total_energy_burned REAL,
     total_energy_burned_unit TEXT,

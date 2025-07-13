@@ -1,5 +1,7 @@
 CREATE TABLE daily_sleep_fact (
-    daily_sleep_fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    daily_sleep_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
     date TEXT,
     total_sleep_minutes INTEGER,
     awake_minutes INTEGER,
