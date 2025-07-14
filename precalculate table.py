@@ -19,7 +19,8 @@ INSERT INTO workout_session_fact (
     end_time,
     calories_burned,
     avg_bpm,
-    max_bpm
+    max_bpm,
+    distance
 )
 SELECT
     w.workout_activity_type AS workout_name,
@@ -33,7 +34,8 @@ SELECT
      WHERE hr.time_from >= w.time_from AND hr.time_to <= w.time_to) AS avg_bpm,
     (SELECT MAX(hr.heart_rate)
      FROM heart_rate_original hr
-     WHERE hr.time_from >= w.time_from AND hr.time_to <= w.time_to) AS max_bpm
+     WHERE hr.time_from >= w.time_from AND hr.time_to <= w.time_to) AS max_bpm,
+     w.total_distance AS distance
 FROM workout_original w;
 """)
 

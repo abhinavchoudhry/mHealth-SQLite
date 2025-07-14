@@ -117,7 +117,8 @@ CREATE TABLE IF NOT EXISTS workout_session_fact (
     end_time TEXT,
     calories_burned REAL,
     avg_bpm REAL,
-    max_bpm REAL
+    max_bpm REAL,
+    distance REAL
 );
 ''')
 
@@ -248,7 +249,9 @@ CREATE TABLE IF NOT EXISTS exercise_library_dim (
     description TEXT,
     equipment TEXT,
     instructions TEXT,
-    warning TEXT
+    warning TEXT,
+    photo_position TEXT,
+    is_user_created INTEGER
 );
 ''')
 
