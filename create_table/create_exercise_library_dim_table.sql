@@ -9,5 +9,5 @@ CREATE TABLE exercise_library_dim (
     instructions TEXT,
     warning TEXT,
     photo_position TEXT,
-    is_user_genereated INTEGER
+    is_user_generated INTEGER
 );
