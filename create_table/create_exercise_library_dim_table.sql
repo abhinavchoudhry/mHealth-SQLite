@@ -7,5 +7,7 @@ CREATE TABLE exercise_library_dim (
     description TEXT,
     equipment TEXT,
     instructions TEXT,
-    warning TEXT
+    warning TEXT,
+    photo_position TEXT,
+    is_user_genereated INTEGER
 );

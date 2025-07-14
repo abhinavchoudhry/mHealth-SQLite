@@ -9,5 +9,6 @@ CREATE TABLE workout_session_fact (
     end_time TEXT,
     calories_burned REAL,
     avg_bpm REAL,
-    max_bpm REAL
+    max_bpm REAL,
+    distance REAL
 );
