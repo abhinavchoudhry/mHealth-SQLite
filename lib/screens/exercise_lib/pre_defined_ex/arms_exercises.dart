@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../Settings/settings_1.dart';
 import '/screens/challenges.dart';
 import '/screens/home_page.dart';
 import '/screens/exercise_lib/pre_defined_ex/bicep_curl/bicep_curl.dart';
@@ -37,7 +38,7 @@ class ArmsExercisesPage extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.settings, color: Color(0xFF3C314F)),
-              onPressed: () {},
+              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
             ),
           ],
         ),

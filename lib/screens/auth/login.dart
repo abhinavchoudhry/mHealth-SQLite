@@ -65,9 +65,21 @@ class _LoginPageState extends State<LoginPage> {
                   Text("Remember me"),
                   Spacer(),
                   TextButton(
-                    onPressed: () {},
-                    child: Text("Forgot login?", style: TextStyle(color: Colors.deepPurple)),
-                  )
+                    onPressed: () {
+                      // Add your forgot login logic here
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.deepPurple, // splash + highlight color
+                    ),
+                    child: const Text(
+                      "Forgot login?",
+                      style: TextStyle(
+                        color: Colors.deepPurple,
+                        decoration: TextDecoration.underline, // underline the text
+                      ),
+                    ),
+                  ),
+
                 ],
               ),
               SizedBox(height: 16),
@@ -95,9 +107,18 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () {
                   Navigator.pushNamed(context, '/signup1');
                 },
-                child: Text("Don’t have an account? Click here to create one.",
-                    style: TextStyle(color: Colors.black87)),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.black87, // Controls splash highlight
+                ),
+                child: const Text(
+                  "Don’t have an account? Click here to create one.",
+                  style: TextStyle(
+                    color: Colors.black87,
+                    decoration: TextDecoration.underline, // Makes it underlined
+                  ),
+                ),
               ),
+
             ],
           ),
         ),

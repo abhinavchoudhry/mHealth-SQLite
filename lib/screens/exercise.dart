@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'Settings/settings_1.dart';
+import 'challenges.dart';
 import 'exercise_lib/exercise_lib.dart';
+import 'exercise_lib/exercise pages/create_workout.dart';
 import '/screens/home_page.dart';
 
 
@@ -14,26 +17,41 @@ class ExercisePage extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+        automaticallyImplyLeading: false,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-
-            SizedBox(width: 8),
-            Text("mHealth", style: TextStyle(color: Colors.black)),
+            IconButton(
+              icon: Icon(Icons.emoji_events_outlined, color: Colors.black),
+              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => ChallengesPage()),);},
+            ),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  //Icon(Icons.emoji_events, color: Colors.deepPurple),
+                  SizedBox(width: 6),
+                  Text("mHealth", style: TextStyle(color: Colors.black)),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.settings, color: Colors.deepPurple),
+              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
+            ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings, color: Colors.deepPurple),
-            onPressed: () {},
-          )
-        ],
+
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () => Navigator.pop(context),
+            ),
             Text("Exercise", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             SizedBox(height: 24),
             ElevatedButton(
@@ -48,7 +66,7 @@ class ExercisePage extends StatelessWidget {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => CreateWorkoutPage()),);},
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple.shade100,
                 foregroundColor: Colors.black,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../Settings/settings_1.dart';
 import '/screens/home_page.dart';
 import 'package:video_player/video_player.dart';
 
@@ -54,7 +55,7 @@ class _BicepCurlPageState extends State<ShoulderRollPage> {
             ),
             IconButton(
               icon: const Icon(Icons.settings, color: Colors.deepPurple),
-              onPressed: () {},
+              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
             ),
           ],
         ),

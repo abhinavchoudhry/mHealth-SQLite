@@ -10,6 +10,7 @@ class CreateAccountStep5 extends StatefulWidget {
 class _CreateAccountStep5State extends State<CreateAccountStep5> {
   String? selectedPersonality;
   String? selectedVoice;
+  int selectedAvatar = -1;
 
   void _showPersonalityInfo(String title, List<String> points) {
     showDialog(
@@ -33,7 +34,7 @@ class _CreateAccountStep5State extends State<CreateAccountStep5> {
               Navigator.of(context).pop();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
-            child: Text("Select",style: TextStyle(color: Colors.white)),
+            child: Text("Select", style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -66,6 +67,10 @@ class _CreateAccountStep5State extends State<CreateAccountStep5> {
     );
   }
 
+  double _getScaleForIndex(int index) => 1.1;
+
+  Alignment _getAlignmentForIndex(int index) => Alignment.center;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,6 +89,44 @@ class _CreateAccountStep5State extends State<CreateAccountStep5> {
             Text("Finally, customize the settings of your AI agent! Select an avatar below, and customize its voice and interactions."),
             SizedBox(height: 24),
 
+            // Appearance section integration
+            const Text('Appearance', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+              ),
+              itemCount: 9,
+              itemBuilder: (context, index) => GestureDetector(
+                onTap: () => setState(() => selectedAvatar = index),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: selectedAvatar == index ? Color(0xFF6B578C) : Colors.transparent,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Transform.scale(
+                      scale: _getScaleForIndex(index),
+                      child: Image.asset(
+                        'images/avatar${index + 1}.png',
+                        fit: BoxFit.cover,
+                        alignment: _getAlignmentForIndex(index),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            SizedBox(height: 24),
             Text("Personality", style: TextStyle(fontWeight: FontWeight.bold)),
             SizedBox(height: 12),
             Wrap(
@@ -118,8 +161,10 @@ class _CreateAccountStep5State extends State<CreateAccountStep5> {
 
             SizedBox(height: 24),
             Text("Voice", style: TextStyle(fontWeight: FontWeight.bold)),
-            _buildVoiceOption("Male"),
-            _buildVoiceOption("Female"),
+            _buildVoiceOption("Voice 1"),
+            _buildVoiceOption("Voice 2"),
+            _buildVoiceOption("Voice 3"),
+            _buildVoiceOption("Voice 4"),
 
             SizedBox(height: 32),
             SizedBox(

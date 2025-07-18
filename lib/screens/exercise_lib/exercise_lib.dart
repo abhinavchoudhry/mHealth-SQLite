@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../Settings/settings_1.dart';
 import '../challenges.dart';
 import '/screens/home_page.dart';
 import '/screens/exercise_lib/pre_defined_ex/arms_exercises.dart';
@@ -32,7 +33,7 @@ class ExerciseLibraryPage extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.settings, color: Colors.deepPurple),
-              onPressed: () {},
+              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
             ),
           ],
         ),

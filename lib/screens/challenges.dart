@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'Settings/settings_1.dart';
 import 'badges.dart';
 
 class ChallengesPage extends StatelessWidget {
@@ -12,7 +13,7 @@ class ChallengesPage extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.settings, color: Colors.deepPurple),
-            onPressed: () {},
+            onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
           ),
         ],
       ),

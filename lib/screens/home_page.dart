@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'Settings/settings_1.dart';
 import 'challenges.dart';
 import 'exercise.dart';
+import 'exercise_lib/exercise_lib.dart';
 
 
 class HomePage extends StatelessWidget {
@@ -17,7 +19,7 @@ class HomePage extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.settings, color: Colors.black),
-            onPressed: () {},
+            onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
           )
         ],
       ),
@@ -46,9 +48,17 @@ class HomePage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 24),
-            _buildActionButton(context, Icons.chat_bubble_outline, "Chat with mHealth AI"),
-            _buildActionButton(context, Icons.list, "View your Exercises"),
-            _buildActionButton(context, Icons.bar_chart, "View your Activity"),
+            _buildActionButton(context, Icons.chat_bubble_outline, "Chat with mHealth AI", () {
+
+            }),
+
+            _buildActionButton(context, Icons.list, "View your Exercises", () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ExerciseLibraryPage()));
+            }),
+
+            _buildActionButton(context, Icons.bar_chart, "View your Activity", () {
+
+            }),
             _buildActionButtonWithProgress(context, Icons.settings, "Personalize your profile", 0.7),
 
 
@@ -94,11 +104,11 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(BuildContext context, IconData icon, String title) {
+  Widget _buildActionButton(BuildContext context, IconData icon, String title, VoidCallback onTap) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () {},
+        onTap: onTap,
         borderRadius: BorderRadius.circular(30),
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -123,6 +133,7 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+
 
 
   Widget _buildActionButtonWithProgress(BuildContext context, IconData icon,

@@ -66,6 +66,17 @@ flutter:
     - Images/cup.png
     - Images/welcome_illustration.png
     - Images/success.png
+    - Images/avatar1.png
+    - Images/avatar2.png
+    - Images/avatar3.png
+    - Images/avatar4.png
+    - Images/avatar5.png
+    - Images/avatar6.png
+    - Images/avatar7.png
+    - Images/avatar8.png
+    - Images/avatar9.png
+    - Images/user.jpeg
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
