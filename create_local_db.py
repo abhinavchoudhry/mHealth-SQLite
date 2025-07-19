@@ -73,19 +73,6 @@ CREATE TABLE IF NOT EXISTS routine_exercise_fact (
 );
 ''')
 
-# 5. Create user_add_exercise_fact table
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS user_add_exercise_fact (
-    user_add_exercise_fact_id INTEGER PRIMARY KEY AUTOINCREMENT
-                                    UNIQUE
-                                    NOT NULL,
-    user_dim_id INTEGER,
-    exercise_library_dim_id INTEGER,
-    date_added TEXT,
-    FOREIGN KEY (user_dim_id) REFERENCES user_dim(user_dim_id),
-    FOREIGN KEY (exercise_library_dim_id) REFERENCES exercise_library_dim(exercise_library_dim_id)
-);
-''')
 
 # 6. Create workout_routine_fact table
 cursor.execute('''
@@ -241,9 +228,23 @@ CREATE TABLE IF NOT EXISTS user_dim (
 # 14. Create exercise_library_dim table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS exercise_library_dim (
-    exercise_library_dim_id INTEGER PRIMARY KEY AUTOINCREMENT
-                                    UNIQUE
-                                    NOT NULL,
+    exercise_library_dim_id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
+    exercise_name TEXT,
+    target_area TEXT,
+    description TEXT,
+    equipment TEXT,
+    instructions TEXT,
+    warning TEXT,
+    photo_position TEXT
+);
+''')
+
+# 15. Create user_custom_exercise_dim table
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS user_custom_exercise_dim (
+    user_exercise_dim_id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
+    user_dim_id INTEGER NOT NULL,
+    date_created TEXT,
     exercise_name TEXT,
     target_area TEXT,
     description TEXT,
@@ -251,7 +252,7 @@ CREATE TABLE IF NOT EXISTS exercise_library_dim (
     instructions TEXT,
     warning TEXT,
     photo_position TEXT,
-    is_user_created INTEGER
+    FOREIGN KEY (user_dim_id) REFERENCES user_dim(user_dim_id)
 );
 ''')
 

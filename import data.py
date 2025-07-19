@@ -9,36 +9,35 @@ cursor = conn.cursor()
 #insert into table user_dim
 cursor.execute('INSERT INTO user_dim (username, pwd, email, first_name, last_name, dob, phone_number, sex, weight, weight_unit, height, height_unit, age, RHR, PHR, chatbot_summary, user_goal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', ('johndoe', 'password123', 'john@example.com', 'John', 'Doe', '01/01/20001', '(123)-456-7890', 'male', '67.5', 'lbs', '70.8661', 'in', '53', '', '', '', ''))
 
-#insert into table exercise_library_dim
-cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position, is_user_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
-               ('Push Up', 'Chest', 'Push-up exercise', 'None', 'Lower your body and push back up', 'Avoid arching back', None, 0))
+# insert into table exercise_library_dim
+cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               ('Push Up', 'Chest', 'Push-up exercise', 'None', 'Lower your body and push back up', 'Avoid arching back', None))
+cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               ('Squat', 'Legs', 'Squat using bodyweight', 'None', 'Lower hips down and stand back up', 'Keep knees behind toes', None))
+cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               ('Deadlift', 'Back', 'Lift bar from ground', 'Barbell', 'Lift with straight back', 'Avoid jerking motion', None))
+cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               ('Plank', 'Core', 'Static hold', 'None', 'Keep back flat', "Don't let hips sag", None))
+cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               ('Lunge', 'Legs', 'Forward lunges', 'None', 'Step forward and lower body', 'Keep torso upright', None))
+cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               ('Bench Press', 'Chest', 'Barbell press', 'Barbell', 'Lower to chest and press', 'Use spotter', None))
+cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               ('Overhead Press', 'Shoulders', 'Barbell overhead', 'Barbell', 'Press upward', "Don't overarch", None))
+cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               ('Pull-Up', 'Back', 'Bodyweight pull-up', 'Bar', 'Pull chin above bar', 'Avoid swinging', None))
+cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               ('Bicep Curl', 'Arms', 'Curl with dumbbell', 'Dumbbell', 'Lift with control', 'Avoid using shoulder', None))
+cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               ('Tricep Dip', 'Arms', 'Dip using bench', 'Bench', 'Lower and press', "Don't lock elbows", None))
 
-cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position, is_user_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
-               ('Squat', 'Legs', 'Squat using bodyweight', 'None', 'Lower hips down and stand back up', 'Keep knees behind toes', None, 0))
 
-cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position, is_user_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
-               ('Deadlift', 'Back', 'Lift bar from ground', 'Barbell', 'Lift with straight back', 'Avoid jerking motion', None, 0))
-
-cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position, is_user_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
-               ('Plank', 'Core', 'Static hold', 'None', 'Keep back flat', "Don't let hips sag", None, 0))
-
-cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position, is_user_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
-               ('Lunge', 'Legs', 'Forward lunges', 'None', 'Step forward and lower body', 'Keep torso upright', None, 0))
-
-cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position, is_user_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
-               ('Bench Press', 'Chest', 'Barbell press', 'Barbell', 'Lower to chest and press', 'Use spotter', None, 0))
-
-cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position, is_user_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
-               ('Overhead Press', 'Shoulders', 'Barbell overhead', 'Barbell', 'Press upward', "Don't overarch", None, 0))
-
-cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position, is_user_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
-               ('Pull-Up', 'Back', 'Bodyweight pull-up', 'Bar', 'Pull chin above bar', 'Avoid swinging', None, 0))
-
-cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position, is_user_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
-               ('Bicep Curl', 'Arms', 'Curl with dumbbell', 'Dumbbell', 'Lift with control', 'Avoid using shoulder', None, 0))
-
-cursor.execute('INSERT INTO exercise_library_dim (exercise_name, target_area, description, equipment, instructions, warning, photo_position, is_user_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
-               ('Tricep Dip', 'Arms', 'Dip using bench', 'Bench', 'Lower and press', "Don't lock elbows", None, 0))
+cursor.execute('INSERT INTO user_custom_exercise_dim (user_dim_id, exercise_name, target_area, description, equipment, instructions, warning, photo_position, date_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);',
+               (1, 'Single Arm Row', 'Back', 'Row using one arm and dumbbell', 'Dumbbell', 'Pull elbow back close to body', 'Avoid twisting torso', None, '2025-07-15'))
+cursor.execute('INSERT INTO user_custom_exercise_dim (user_dim_id, exercise_name, target_area, description, equipment, instructions, warning, photo_position, date_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);',
+               (1, 'Reverse Crunch', 'Core', 'Lift hips off ground to engage abs', 'None', 'Use slow controlled motion', 'Don’t pull with legs', None, '2025-07-16'))
+cursor.execute('INSERT INTO user_custom_exercise_dim (user_dim_id, exercise_name, target_area, description, equipment, instructions, warning, photo_position, date_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);',
+               (1, 'Calf Raise', 'Legs', 'Raise heels to work calves', 'None', 'Hold top position briefly', 'Avoid bouncing', None, '2025-07-17'))
 
 
 #insert into table daily_sleep_fact
@@ -85,8 +84,6 @@ cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exer
 cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (2, 4, 60, 0, 0, 'lb'))
 cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (2, 6, 15, 3, 0, 'lb'))
 
-#insert into table user_add_exercise_fact
-cursor.execute('INSERT INTO user_add_exercise_fact (user_dim_id, exercise_library_dim_id, date_added) VALUES (?, ?, ?);', (1, 1, '2025-06-01'))
 
 #insert into table workout_routine_fact
 cursor.execute('INSERT INTO workout_routine_fact (user_dim_id, workout_routine_name, created_at, is_ai_generated) VALUES (?, ?, ?, ?);', (1, 'Morning Routine', '2025-06-01 06:00:00', 0))
