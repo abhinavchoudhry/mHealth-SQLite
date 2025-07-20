@@ -76,18 +76,34 @@ cursor.execute('INSERT INTO daily_sleep_fact (date, total_sleep_minutes, awake_m
 cursor.execute('INSERT INTO exercise_log_fact (exercise_library_dim_id, log_date, log_time, calories_burned) VALUES (?, ?, ?, ?);', (1, '2025-06-01', '08:00:00', 150.0))
 
 #insert into table routine_exercise_fact
-cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (1, 1, 12, 3, 20, 'kg'))
-cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (1, 7, 10, 3, 15, 'kg'))
-cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (1, 8, 5, 3, 0, 'lb'))
-cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (1, 9, 12, 3, 40, 'lb'))
-cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (2, 1, 12, 3, 20, 'kg'))
-cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (2, 4, 60, 0, 0, 'lb'))
-cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?);', (2, 6, 15, 3, 0, 'lb'))
+#predefined exercises (using exercise_library_dim_id, user_exercise_dim_id=None)
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_library_dim_id, user_exercise_dim_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               (1, 1, None, 12, 3, 20, 'kg'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_library_dim_id, user_exercise_dim_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               (1, 7, None, 10, 3, 15, 'kg'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_library_dim_id, user_exercise_dim_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               (1, 8, None, 5, 3, 0, 'lb'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_library_dim_id, user_exercise_dim_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               (1, 9, None, 12, 3, 40, 'lb'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_library_dim_id, user_exercise_dim_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               (2, 1, None, 12, 3, 20, 'kg'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_library_dim_id, user_exercise_dim_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               (2, 4, None, 60, 0, 0, 'lb'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_library_dim_id, user_exercise_dim_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               (2, 6, None, 15, 3, 0, 'lb'))
+#user-created exercises (using user_exercise_dim_id, exercise_library_dim_id=None)
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_library_dim_id, user_exercise_dim_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               (2, None, 1, 8, 3, 12, 'kg'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_library_dim_id, user_exercise_dim_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               (2, None, 2, 15, 3, 0, 'lb'))
+cursor.execute('INSERT INTO routine_exercise_fact (workout_routine_fact_id, exercise_library_dim_id, user_exercise_dim_id, repetitions, sets, weight, weight_unit) VALUES (?, ?, ?, ?, ?, ?, ?);',
+               (2, None, 3, 20, 3, 0, 'kg'))
 
 
 #insert into table workout_routine_fact
 cursor.execute('INSERT INTO workout_routine_fact (user_dim_id, workout_routine_name, created_at, is_ai_generated) VALUES (?, ?, ?, ?);', (1, 'Morning Routine', '2025-06-01 06:00:00', 0))
 cursor.execute('INSERT INTO workout_routine_fact (user_dim_id, workout_routine_name, created_at, is_ai_generated) VALUES (?, ?, ?, ?);', (1, 'Quick Full Body', '2025-07-01 06:00:00', 0))
+
 
 #insert into table active_energy_burned_original
 cursor.execute('INSERT INTO active_energy_burned_original (active_energy_burned, unit, time_from, time_to, source_platform, source_device_id, source_name, recording_method) VALUES (?, ?, ?, ?, ?, ?, ?, ?);', (49.7, 'calories', '2025-06-01 00:00:00', '2025-06-01 00:59:59', 'Google Fit', 'device123', 'Pixel 7', 'automated'))
