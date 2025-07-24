@@ -1,17 +1,76 @@
 import 'package:flutter/material.dart';
+import 'package:mhealthapp/db_helper.dart';
+import 'create_acc2.dart'; 
 
 
-class CreateAccountStep1 extends StatelessWidget {
+class CreateAccountStep1 extends StatefulWidget {
   const CreateAccountStep1({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final _firstNameController = TextEditingController();
-    final _lastNameController = TextEditingController();
-    final _dobController = TextEditingController();
-    final _phoneController = TextEditingController();
-    final _emailController = TextEditingController();
+  State<CreateAccountStep1> createState() => _CreateAccountStep1State();
+}
 
+class _CreateAccountStep1State extends State<CreateAccountStep1> {
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _dobController = TextEditingController();
+  final _phoneController = TextEditingController();
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _dobController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  void _onNextPressed() async {
+    final user = {
+      'username':'test1',
+      'pwd':'123456',
+      'first_name': _firstNameController.text,
+      'last_name': _lastNameController.text,
+      'email': _emailController.text,
+      'dob': _dobController.text,
+      'phone_number': _phoneController.text,
+      'sex': 'Female',
+      'weight': 70, 
+      'weight_unit':'kg' ,
+      'height': 170   , 
+      'height_unit': 'cm',
+      'age': 35,
+      'RHR': 60,
+      'PHR': 'diabite'
+      };
+
+    final userId = await DBHelper().insertUser(user);
+    
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateAccountStep2(userId: userId),
+      ),
+    );
+
+    fetchUsers();
+  }
+
+
+  void fetchUsers() async {
+  final users = await DBHelper().getUsers();
+
+  for (var user in users) {
+    print('User: ${user['id']} - ${user['first_name']} - ${user['email']}');
+  }
+}
+
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -100,9 +159,7 @@ class CreateAccountStep1 extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/signup2');
-                },
+                onPressed: _onNextPressed,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
                   padding: EdgeInsets.symmetric(vertical: 16),
@@ -116,4 +173,5 @@ class CreateAccountStep1 extends StatelessWidget {
       ),
     );
   }
+
 }

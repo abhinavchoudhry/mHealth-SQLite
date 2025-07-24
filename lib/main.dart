@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       '/welcome': (context) => const WelcomePage(),
       '/login': (context) => const LoginPage(),     // Create this next
       '/signup1': (context) => const CreateAccountStep1(),
-      '/signup2':(context) => const CreateAccountStep2(),
+      '/signup2':(context) => CreateAccountStep2(userId: 0),
       '/signup3':(context) => const CreateAccountStep3(),
       '/signup4':(context) => const CreateAccountStep4(),
       '/signup5':(context) => const CreateAccountStep5(),

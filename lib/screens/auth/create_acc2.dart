@@ -1,13 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:mhealthapp/db_helper.dart';
 
-class CreateAccountStep2 extends StatelessWidget {
-  const CreateAccountStep2({super.key});
+class CreateAccountStep2 extends StatefulWidget {
+  final int userId;
+
+  const CreateAccountStep2({super.key, required this.userId});
+
+  @override
+  State<CreateAccountStep2> createState() => _CreateAccountStep2State();
+}
+
+class _CreateAccountStep2State extends State<CreateAccountStep2> {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _onNextPressed() async {
+    final updateData = {
+      'username': _usernameController.text,
+      'pwd': _passwordController.text,
+    };
+
+    await DBHelper().updateUser(widget.userId, updateData);
+
+    final user = await DBHelper().getUserById(widget.userId);
+    print("Updated user info: $user");
+
+    Navigator.pushNamed(context, '/signup3');
+
+
+  }
 
   @override
   Widget build(BuildContext context) {
-    final _usernameController = TextEditingController();
-    final _passwordController = TextEditingController();
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -69,9 +100,7 @@ class CreateAccountStep2 extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/signup3');
-                },
+                onPressed:_onNextPressed,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
                   padding: EdgeInsets.symmetric(vertical: 16),
