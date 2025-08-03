@@ -4,7 +4,7 @@ import 'challenges.dart';
 import 'exercise_lib/exercise_lib.dart';
 import 'exercise_lib/exercise pages/create_workout.dart';
 import '/screens/home_page.dart';
-
+import 'exercise_lib/exercise pages/log_activity.dart';
 
 class ExercisePage extends StatelessWidget {
   const ExercisePage({super.key});
@@ -23,7 +23,12 @@ class ExercisePage extends StatelessWidget {
           children: [
             IconButton(
               icon: Icon(Icons.emoji_events_outlined, color: Colors.black),
-              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => ChallengesPage()),);},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChallengesPage()),
+                );
+              },
             ),
             Expanded(
               child: Row(
@@ -37,11 +42,15 @@ class ExercisePage extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.settings, color: Colors.deepPurple),
-              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              },
             ),
           ],
         ),
-
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -52,37 +61,64 @@ class ExercisePage extends StatelessWidget {
               icon: Icon(Icons.arrow_back, color: Colors.black),
               onPressed: () => Navigator.pop(context),
             ),
-            Text("Exercise", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(
+              "Exercise",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => ExerciseLibraryPage()),);},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ExerciseLibraryPage(),
+                  ),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple.shade100,
                 foregroundColor: Colors.black,
                 padding: EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               child: Center(child: Text("View Exercise Library")),
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => CreateWorkoutPage()),);},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CreateWorkoutPage()),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple.shade100,
                 foregroundColor: Colors.black,
                 padding: EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               child: Center(child: Text("Create Workout Routine")),
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LogActivityPage()),
+                );
+              },
+
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               child: Center(child: Text("Log Activity")),
             ),
@@ -102,15 +138,15 @@ class ExercisePage extends StatelessWidget {
             Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
           } else if (index == 0) {
             // Navigate to ChallengesPage
-            Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()),);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
           }
           // Optional: handle Chat (index == 1), Exercise (index == 2)
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             label: 'Chat',

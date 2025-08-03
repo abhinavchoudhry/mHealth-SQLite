@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mhealthapp/db_helper.dart';
 
 class CreateAccountStep6 extends StatelessWidget {
-  const CreateAccountStep6({super.key});
+  final Map<String, dynamic> userData;
+  const CreateAccountStep6({super.key, required this.userData});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +19,10 @@ class CreateAccountStep6 extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Create an Account", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(
+              "Create an Account",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 24),
             Text(
               "Congratulations, you have finished setting up your account! Click the 'Get Started' button to proceed to the home page.",
@@ -25,23 +30,28 @@ class CreateAccountStep6 extends StatelessWidget {
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 40),
-            Image.asset(
-              'Images/success.png',
-              height: 450,
-              fit: BoxFit.contain,
-            ),
+            Image.asset('Images/success.png', height: 450, fit: BoxFit.contain),
             SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => true);
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/home',
+                  (route) => true,
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
                 padding: EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              child: Text("Get Started", style: TextStyle(fontSize: 16, color: Colors.white)),
-            )
+              child: Text(
+                "Get Started",
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
+            ),
           ],
         ),
       ),

@@ -1,23 +1,33 @@
-
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ConversationSummaryPage extends StatefulWidget {
   const ConversationSummaryPage({super.key});
 
   @override
-  State<ConversationSummaryPage> createState() => _ConversationSummaryPageState();
+  State<ConversationSummaryPage> createState() =>
+      _ConversationSummaryPageState();
 }
 
 class _ConversationSummaryPageState extends State<ConversationSummaryPage> {
-  final TextEditingController nameController = TextEditingController(text: "John Doe");
+  final TextEditingController nameController = TextEditingController(
+    text: "John Doe",
+  );
   final TextEditingController ageController = TextEditingController(text: "30");
-  final TextEditingController goalController = TextEditingController(text: "Weight Loss");
-  final TextEditingController conditionsController = TextEditingController(text: "None");
-  final TextEditingController exerciseController = TextEditingController(text: "Cardio");
+  final TextEditingController goalController = TextEditingController(
+    text: "Weight Loss",
+  );
+  final TextEditingController conditionsController = TextEditingController(
+    text: "None",
+  );
+  final TextEditingController exerciseController = TextEditingController(
+    text: "Cardio",
+  );
   final TextEditingController notesController = TextEditingController();
 
   final TextEditingController chatbotSummaryController = TextEditingController(
-    text: "Based on your conversations so far, you are focused on achieving weight loss through cardio exercises, with no known medical conditions. You prefer short, high-intensity workouts and have expressed interest in tracking your progress weekly.",
+    text:
+        "Based on your conversations so far, you are focused on achieving weight loss through cardio exercises, with no known medical conditions. You prefer short, high-intensity workouts and have expressed interest in tracking your progress weekly.",
   );
 
   @override
@@ -35,7 +45,11 @@ class _ConversationSummaryPageState extends State<ConversationSummaryPage> {
         automaticallyImplyLeading: false,
         leading: Padding(
           padding: EdgeInsets.only(left: screenWidth * 0.04),
-          child: Icon(Icons.emoji_events, color: const Color(0xFF6B578C), size: screenWidth * 0.08),
+          child: Icon(
+            Icons.emoji_events,
+            color: const Color(0xFF6B578C),
+            size: screenWidth * 0.08,
+          ),
         ),
         title: Text(
           'mHealth',
@@ -48,7 +62,11 @@ class _ConversationSummaryPageState extends State<ConversationSummaryPage> {
         actions: [
           Padding(
             padding: EdgeInsets.only(right: screenWidth * 0.04),
-            child: Icon(Icons.settings, color: const Color(0xFF6B578C), size: screenWidth * 0.08),
+            child: Icon(
+              Icons.settings,
+              color: const Color(0xFF6B578C),
+              size: screenWidth * 0.08,
+            ),
           ),
         ],
       ),
@@ -60,27 +78,45 @@ class _ConversationSummaryPageState extends State<ConversationSummaryPage> {
             children: [
               SizedBox(height: screenWidth * 0.04),
               IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.black, size: screenWidth * 0.07),
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: Colors.black,
+                  size: screenWidth * 0.07,
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
               SizedBox(height: screenWidth * 0.02),
 
               Text(
                 'Conversation Summary',
-                style: TextStyle(fontSize: 20 * textScale, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: 20 * textScale,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const Divider(height: 32),
 
               _editableField("Name", nameController, textScale),
               _editableField("Age", ageController, textScale),
               _editableField("Health Goal", goalController, textScale),
-              _editableField("Known Conditions", conditionsController, textScale),
-              _editableField("Preferred Exercise", exerciseController, textScale),
+              _editableField(
+                "Known Conditions",
+                conditionsController,
+                textScale,
+              ),
+              _editableField(
+                "Preferred Exercise",
+                exerciseController,
+                textScale,
+              ),
 
               SizedBox(height: screenWidth * 0.04),
               Text(
                 'Chatbot Summary:',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16 * textScale),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16 * textScale,
+                ),
               ),
               SizedBox(height: screenWidth * 0.01),
               TextField(
@@ -102,7 +138,10 @@ class _ConversationSummaryPageState extends State<ConversationSummaryPage> {
               SizedBox(height: screenWidth * 0.04),
               Text(
                 'Additional Notes:',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16 * textScale),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16 * textScale,
+                ),
               ),
               SizedBox(height: screenWidth * 0.01),
               TextField(
@@ -111,7 +150,9 @@ class _ConversationSummaryPageState extends State<ConversationSummaryPage> {
                 decoration: InputDecoration(
                   hintText: "Add any personal notes...",
                   hintStyle: const TextStyle(
-                      color: Color(0xFF6B578C), fontWeight: FontWeight.w500),
+                    color: Color(0xFF6B578C),
+                    fontWeight: FontWeight.w500,
+                  ),
                   enabledBorder: OutlineInputBorder(
                     borderSide: const BorderSide(color: Color(0xFF6B578C)),
                     borderRadius: BorderRadius.circular(8),
@@ -151,13 +192,23 @@ class _ConversationSummaryPageState extends State<ConversationSummaryPage> {
     );
   }
 
-  Widget _editableField(String label, TextEditingController controller, double textScale) {
+  Widget _editableField(
+    String label,
+    TextEditingController controller,
+    double textScale,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14 * textScale)),
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 14 * textScale,
+            ),
+          ),
           SizedBox(height: 4),
           TextField(
             controller: controller,

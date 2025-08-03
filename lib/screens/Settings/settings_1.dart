@@ -1,15 +1,57 @@
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mhealthapp/screens/Settings/user_info.dart';
+import 'package:mhealthapp/db_helper.dart';
 
 import '../exercise.dart';
 import 'ai_agent.dart';
 import 'contacts.dart';
 import 'faq.dart';
 
-
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  String? username;
+  String? email;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserInfo();
+  }
+
+  Future<void> _loadUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final int? userId = prefs.getInt('userId');
+
+    if (userId == null) {
+      setState(() {
+        username = 'Unknown User';
+        email = 'unknown@example.com';
+      });
+      return;
+    }
+
+    final dbHelper = DBHelper();
+    final userData = await dbHelper.getUserById(userId);
+
+    if (userData != null) {
+      setState(() {
+        username = userData['username'] ?? 'Unknown User';
+        email = userData['email'] ?? 'unknown@example.com';
+      });
+    } else {
+      setState(() {
+        username = 'Unknown User';
+        email = 'unknown@example.com';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,22 +67,23 @@ class SettingsPage extends StatelessWidget {
         unselectedItemColor: Colors.grey,
         //showSelectedLabels: true,
         showUnselectedLabels: true,
-        currentIndex: 0, // or 0 for SettingsPage, or correct index for this page
+        currentIndex:
+            0, // or 0 for SettingsPage, or correct index for this page
         onTap: (index) {
           if (index == 0) {
             // Navigate to SettingsPage
             Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
           } else if (index == 2) {
             // Navigate to ChallengesPage
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ExercisePage()),);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ExercisePage()),
+            );
           }
           // Optional: handle Chat (index == 1), Exercise (index == 2)
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             label: 'Chat',
@@ -78,7 +121,6 @@ class SettingsPage extends StatelessWidget {
               ),
             ),
 
-
             // "Settings" title
             Padding(
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
@@ -97,7 +139,9 @@ class SettingsPage extends StatelessWidget {
             // Profile section
             Padding(
               padding: EdgeInsets.symmetric(
-                  horizontal: horizontalPadding, vertical: 12.0),
+                horizontal: horizontalPadding,
+                vertical: 12.0,
+              ),
               child: Row(
                 children: [
                   Container(
@@ -108,25 +152,24 @@ class SettingsPage extends StatelessWidget {
                       color: Color(0xFF6B578C),
                     ),
                     child: ClipOval(
-                      child: Image.asset(
-                        'images/user.jpeg',
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.asset('images/user.jpeg', fit: BoxFit.cover),
                     ),
                   ),
                   SizedBox(width: screenWidth * 0.04),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
-                          'Name',
+                          username ?? 'Unknown User',
                           style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'email@example.com',
+                          email ?? 'unknown@example.com',
                           style: TextStyle(fontSize: 14, color: Colors.grey),
                         ),
                       ],
@@ -148,10 +191,12 @@ class SettingsPage extends StatelessWidget {
               'Frequently Asked Questions',
               'About',
             ].map(
-                  (title) => Column(
+              (title) => Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                    ),
                     child: ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: Text(
@@ -177,13 +222,16 @@ class SettingsPage extends StatelessWidget {
                             page = const FAQPage();
                             break;
                           default:
-                            page = const Scaffold(body: Center(child: Text('Page not found')));
+                            page = const Scaffold(
+                              body: Center(child: Text('Page not found')),
+                            );
                         }
 
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => page),
-                        );},
+                        );
+                      },
                     ),
                   ),
                   const Divider(height: 1),
@@ -208,72 +256,75 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
             ),
-
           ],
         ),
       ),
     );
   }
 
-
   void _showMasterResetDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text(
-          'Master Reset',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF6B578C),
-          ),
-        ),
-        content: const Text(
-          'Requesting a Master Reset will clear your progress, preferences, and chatbot interactions. '
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            title: const Text(
+              'Master Reset',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF6B578C),
+              ),
+            ),
+            content: const Text(
+              'Requesting a Master Reset will clear your progress, preferences, and chatbot interactions. '
               'This action is not automatic. Once submitted, your request will be reviewed by our team for confirmation. '
               'You’ll be notified once it’s approved and processed.\n\nAre you sure you want to request a reset?',
-          style: TextStyle(
-            fontSize: 14,
-            color: Color(0xFF6B578C),
-          ),
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actionsPadding: const EdgeInsets.only(bottom: 12),
-        actions: [
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black,
-              side: const BorderSide(color: Color(0xFF6B578C), width: 1.5),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              style: TextStyle(fontSize: 14, color: Color(0xFF6B578C)),
             ),
-            onPressed: () {
-              Navigator.pop(context);
-              // add master reset logic here
-            },
-            child: const Text('Yes'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF6B578C),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+            actionsAlignment: MainAxisAlignment.center,
+            actionsPadding: const EdgeInsets.only(bottom: 12),
+            actions: [
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  side: const BorderSide(color: Color(0xFF6B578C), width: 1.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  // add master reset logic here
+                },
+                child: const Text('Yes'),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Cancel'),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF6B578C),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
-
 
   AppBar appBar() {
     return AppBar(

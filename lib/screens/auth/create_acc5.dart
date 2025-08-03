@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'create_acc6.dart';
+import 'package:mhealthapp/db_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateAccountStep5 extends StatefulWidget {
-  const CreateAccountStep5({super.key});
+  final Map<String, dynamic> userData;
+  const CreateAccountStep5({super.key, required this.userData});
 
   @override
   State<CreateAccountStep5> createState() => _CreateAccountStep5State();
@@ -15,29 +19,42 @@ class _CreateAccountStep5State extends State<CreateAccountStep5> {
   void _showPersonalityInfo(String title, List<String> points) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(title, style: TextStyle(color: Colors.deepPurple)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: points.map((p) => Text("• $p", style: TextStyle(color: Colors.deepPurple))).toList(),
-        ),
-        actions: [
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text("Cancel"),
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Text(title, style: TextStyle(color: Colors.deepPurple)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children:
+                  points
+                      .map(
+                        (p) => Text(
+                          "• $p",
+                          style: TextStyle(color: Colors.deepPurple),
+                        ),
+                      )
+                      .toList(),
+            ),
+            actions: [
+              OutlinedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() => selectedPersonality = title);
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                ),
+                child: Text("Select", style: TextStyle(color: Colors.white)),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() => selectedPersonality = title);
-              Navigator.of(context).pop();
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
-            child: Text("Select", style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
     );
   }
 
@@ -48,7 +65,8 @@ class _CreateAccountStep5State extends State<CreateAccountStep5> {
         padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
           border: Border.all(
-            color: selectedPersonality == label ? Colors.deepPurple : Colors.grey,
+            color:
+                selectedPersonality == label ? Colors.deepPurple : Colors.grey,
           ),
           borderRadius: BorderRadius.circular(8),
         ),
@@ -71,6 +89,52 @@ class _CreateAccountStep5State extends State<CreateAccountStep5> {
 
   Alignment _getAlignmentForIndex(int index) => Alignment.center;
 
+  void printUserInfo(int userId) async {
+    final dbHelper = DBHelper();
+    final userInfo = await dbHelper.getUserById(userId);
+
+    if (userInfo != null) {
+      print('User Info:');
+      userInfo.forEach((key, value) {
+        print('key: $key → value: $value → type: ${value.runtimeType}');
+      });
+    } else {
+      print('No user found with id: $userId');
+    }
+  }
+
+  void _onNextPressed() async {
+    widget.userData['ai_avatar_id'] = selectedAvatar.toString();
+    widget.userData['ai_personality'] = selectedPersonality;
+    widget.userData['ai_voice'] = selectedVoice;
+
+    widget.userData.forEach((key, value) {
+      print('key: $key → value: $value → type: ${value.runtimeType}');
+    });
+
+    //save to database
+    final userId = await DBHelper().insertUser(widget.userData);
+    if (userId == null) {
+      print('Error inserting user data');
+      return;
+    }
+    ;
+    widget.userData['id'] = userId.toString();
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('userId', userId);
+    prefs.setString('username', widget.userData['username']);
+    prefs.setString('email', widget.userData['email']);
+
+    printUserInfo(userId);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateAccountStep6(userData: widget.userData),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,13 +148,21 @@ class _CreateAccountStep5State extends State<CreateAccountStep5> {
         padding: const EdgeInsets.all(24.0),
         child: ListView(
           children: [
-            Text("Create an Account", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(
+              "Create an Account",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 12),
-            Text("Finally, customize the settings of your AI agent! Select an avatar below, and customize its voice and interactions."),
+            Text(
+              "Finally, customize the settings of your AI agent! Select an avatar below, and customize its voice and interactions.",
+            ),
             SizedBox(height: 24),
 
             // Appearance section integration
-            const Text('Appearance', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Appearance',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             GridView.builder(
               shrinkWrap: true,
@@ -101,29 +173,33 @@ class _CreateAccountStep5State extends State<CreateAccountStep5> {
                 crossAxisSpacing: 10,
               ),
               itemCount: 9,
-              itemBuilder: (context, index) => GestureDetector(
-                onTap: () => setState(() => selectedAvatar = index),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: selectedAvatar == index ? Color(0xFF6B578C) : Colors.transparent,
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Transform.scale(
-                      scale: _getScaleForIndex(index),
-                      child: Image.asset(
-                        'images/avatar${index + 1}.png',
-                        fit: BoxFit.cover,
-                        alignment: _getAlignmentForIndex(index),
+              itemBuilder:
+                  (context, index) => GestureDetector(
+                    onTap: () => setState(() => selectedAvatar = index),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color:
+                              selectedAvatar == index
+                                  ? Color(0xFF6B578C)
+                                  : Colors.transparent,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Transform.scale(
+                          scale: _getScaleForIndex(index),
+                          child: Image.asset(
+                            'images/avatar${index + 1}.png',
+                            fit: BoxFit.cover,
+                            alignment: _getAlignmentForIndex(index),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
             ),
 
             SizedBox(height: 24),
@@ -136,25 +212,25 @@ class _CreateAccountStep5State extends State<CreateAccountStep5> {
                 _buildPersonalityOption("Empathetic", [
                   "Empathetic and nice if things are getting hard",
                   "Could come across soft and not motivating",
-                  "Sympathetic to injuries and soreness"
+                  "Sympathetic to injuries and soreness",
                 ]),
                 _buildPersonalityOption("Direct", [
                   "Stern and right to the point",
                   "Very analytical and more about the numbers",
                   "Will tell you if you are not doing well",
-                  "Could come across as mean"
+                  "Could come across as mean",
                 ]),
                 _buildPersonalityOption("Balanced", [
                   "Very friendly",
                   "Well balanced and not overly crazy on any attributes",
                   "Supportive and not overly pushy",
-                  "Acknowledges mental and physical side of training"
+                  "Acknowledges mental and physical side of training",
                 ]),
                 _buildPersonalityOption("Mentally Focused", [
                   "All about mental aspect",
                   "Not as stern as coach Helen",
                   "Ties back stuff to mental state",
-                  "Pushes you mentally more than physically"
+                  "Pushes you mentally more than physically",
                 ]),
               ],
             ),
@@ -170,15 +246,18 @@ class _CreateAccountStep5State extends State<CreateAccountStep5> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/signup6');
-                },
+                onPressed: _onNextPressed,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
                   padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                child: Text("Next", style: TextStyle(fontSize: 16, color: Colors.white)),
+                child: Text(
+                  "Next",
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
               ),
             ),
           ],

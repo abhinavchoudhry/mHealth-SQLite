@@ -10,9 +10,12 @@ import 'screens/auth/create_acc5.dart';
 import 'screens/auth/create_acc6.dart';
 import '/screens/exercise_lib/pre_defined_ex/arms_exercises.dart';
 import '/screens/exercise_lib/pre_defined_ex/bicep_curl/bicep_curl.dart';
+import 'db_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await DBHelper().initDb();
   runApp(MyApp());
 }
 
@@ -23,20 +26,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-    initialRoute: '/welcome',
-    routes: {
-      '/home': (context) => HomePage(),
-      '/welcome': (context) => const WelcomePage(),
-      '/login': (context) => const LoginPage(),     // Create this next
-      '/signup1': (context) => const CreateAccountStep1(),
-      '/signup2':(context) => CreateAccountStep2(userId: 0),
-      '/signup3':(context) => const CreateAccountStep3(),
-      '/signup4':(context) => const CreateAccountStep4(),
-      '/signup5':(context) => const CreateAccountStep5(),
-      '/signup6':(context) => const CreateAccountStep6(),
-      '/arms':(context) => const ArmsExercisesPage(),
-
-    }
+      initialRoute: '/welcome',
+      routes: {
+        '/home': (context) => HomePage(),
+        '/welcome': (context) => const WelcomePage(),
+        '/login': (context) => const LoginPage(), // Create this next
+        '/signup1': (context) => const CreateAccountStep1(),
+        '/signup2': (context) => CreateAccountStep2(userData: {}),
+        '/signup3': (context) => CreateAccountStep3(userData: {}),
+        '/signup4': (context) => CreateAccountStep4(userData: {}),
+        '/signup5': (context) => CreateAccountStep5(userData: {}),
+        '/signup6': (context) => CreateAccountStep6(userData: {}),
+        '/arms': (context) => const ArmsExercisesPage(),
+      },
     );
   }
 }

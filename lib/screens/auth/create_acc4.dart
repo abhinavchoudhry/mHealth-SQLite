@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'create_acc5.dart';
+import 'dart:convert';
 
 class CreateAccountStep4 extends StatefulWidget {
-  const CreateAccountStep4({super.key});
+  final Map<String, dynamic> userData;
+  const CreateAccountStep4({super.key, required this.userData});
 
   @override
   State<CreateAccountStep4> createState() => _CreateAccountStep4State();
@@ -17,18 +20,45 @@ class _CreateAccountStep4State extends State<CreateAccountStep4> {
   final TextEditingController _customGoalController = TextEditingController();
   List<String> customGoals = [];
 
+  void _onNextPressed() async {
+    widget.userData['custom_goals'] = jsonEncode(goals);
+
+    // await DBHelper().updateUser(widget.userId, updateData);
+
+    // final user = await DBHelper().getUserById(widget.userId);
+    // print("Updated user info: $user");
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateAccountStep5(userData: widget.userData),
+      ),
+    );
+  }
+
   void _addCustomGoalDialog() {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text("New Custom Goal", style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            "New Custom Goal",
+            style: TextStyle(
+              color: Colors.deepPurple,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: TextField(
             controller: _customGoalController,
             decoration: InputDecoration(
               hintText: "Ex: Mobility, Learning Skills etc.",
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.deepPurple)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.deepPurple),
+              ),
             ),
           ),
           actions: [
@@ -77,8 +107,10 @@ class _CreateAccountStep4State extends State<CreateAccountStep4> {
         padding: const EdgeInsets.all(24.0),
         child: ListView(
           children: [
-            Text("Create an Account",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(
+              "Create an Account",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 12),
             Text(
               "Next, set your goals. Select from the goals below and/or add custom goals. They can be changed later in your profile.",
@@ -86,12 +118,14 @@ class _CreateAccountStep4State extends State<CreateAccountStep4> {
             ),
             SizedBox(height: 24),
 
-            ...goals.keys.map((goal) => CheckboxListTile(
-              title: Text(goal),
-              value: goals[goal],
-              activeColor: Colors.deepPurple,
-              onChanged: (val) => setState(() => goals[goal] = val ?? false),
-            )),
+            ...goals.keys.map(
+              (goal) => CheckboxListTile(
+                title: Text(goal),
+                value: goals[goal],
+                activeColor: Colors.deepPurple,
+                onChanged: (val) => setState(() => goals[goal] = val ?? false),
+              ),
+            ),
 
             TextButton(
               onPressed: _addCustomGoalDialog,
@@ -105,15 +139,18 @@ class _CreateAccountStep4State extends State<CreateAccountStep4> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/signup5');
-                },
+                onPressed: _onNextPressed,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
                   padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                child: Text("Next", style: TextStyle(fontSize: 16, color: Colors.white)),
+                child: Text(
+                  "Next",
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
               ),
             ),
           ],

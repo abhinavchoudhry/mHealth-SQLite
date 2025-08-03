@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:mhealthapp/screens/Settings/user_info/edit_chat_summary.dart';
 import 'package:mhealthapp/screens/Settings/user_info/edit_goal_setting.dart';
@@ -32,15 +31,15 @@ class UserInfo extends StatelessWidget {
             Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
           } else if (index == 2) {
             // Navigate to ChallengesPage
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ExercisePage()),);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ExercisePage()),
+            );
           }
           // Optional: handle Chat (index == 1), Exercise (index == 2)
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             label: 'Chat',
@@ -69,16 +68,21 @@ class UserInfo extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 24),
-            const Text('User Information',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            const Text(
+              'User Information',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
             const Divider(height: 32),
             ListTile(
               title: const Text('Personal Details'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => const PsnlDetails(),
-                ));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditPersonalInfoPage(),
+                  ),
+                );
               },
             ),
             const Divider(),
@@ -86,9 +90,12 @@ class UserInfo extends StatelessWidget {
               title: const Text('User Chat Summary'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => const ConversationSummaryPage(),
-                ));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ConversationSummaryPage(),
+                  ),
+                );
               },
             ),
             const Divider(),
@@ -96,9 +103,10 @@ class UserInfo extends StatelessWidget {
               title: const Text('Health Information'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => const HealthInfo(),
-                ));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HealthInfo()),
+                );
               },
             ),
             const Divider(),
@@ -106,9 +114,10 @@ class UserInfo extends StatelessWidget {
               title: const Text('Goal Setting'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => const GoalSetting(),
-                ));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const GoalSetting()),
+                );
               },
             ),
           ],

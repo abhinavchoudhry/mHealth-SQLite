@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mhealthapp/db_helper.dart';
 import '../exercise.dart';
 
 class AIAgentPage extends StatefulWidget {
@@ -10,19 +11,78 @@ class AIAgentPage extends StatefulWidget {
 }
 
 class _AIAgentPageState extends State<AIAgentPage> {
+  int? userId;
+  Map<String, dynamic>? userData;
   bool alwaysListening = false;
   int selectedAvatar = 0;
   String selectedPersonality = 'Empathetic';
   String selectedVoice = 'Voice 1';
 
+  @override
+  void initState() {
+    super.initState();
+    loadUserIdAndData();
+  }
+
+  Future<void> loadUserIdAndData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final int? id = prefs.getInt('userId');
+    final dbHelper = DBHelper();
+
+    if (id == null) {
+      print('No userId found in SharedPreferences');
+      return;
+    }
+
+    final Map<String, dynamic>? data = await dbHelper.getUserById(id);
+    if (data != null) {
+      // print('Username: ${userData['username']}');
+      // print('Email: ${userData['email']}');
+      setState(() {
+        userId = data['id'];
+        userData = data;
+        selectedAvatar = userData?["ai_avatar_id"] ?? 0;
+        selectedPersonality = userData?["ai_personality"] ?? 'Empathetic';
+        selectedVoice = userData?["ai_voice"] ?? 'Voice 1';
+        // Store or display in UI as needed
+      });
+    } else {
+      print('User not found');
+    }
+  }
+
+  Future<void> printUserInfo(int userId) async {
+    final dbHelper = DBHelper();
+    final userInfo = await dbHelper.getUserById(userId);
+
+    if (userInfo != null) {
+      print('User Info:');
+      userInfo.forEach((key, value) {
+        print('key: $key → value: $value → type: ${value.runtimeType}');
+      });
+    } else {
+      print('No user found with id: $userId');
+    }
+  }
+
   final List<String> personalities = [
-    'Empathetic', 'Direct', 'Balanced', 'Mentally Focused'
+    'Empathetic',
+    'Direct',
+    'Balanced',
+    'Mentally Focused',
   ];
 
-  final List<String> voices = ['Voice 1', 'Voice 2','Voice 3','Voice 4'];
+  final List<String> voices = ['Voice 1', 'Voice 2', 'Voice 3', 'Voice 4'];
 
   @override
   Widget build(BuildContext context) {
+    if (userData == null ||
+        selectedPersonality == null ||
+        selectedVoice == null ||
+        selectedAvatar == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     final screenWidth = MediaQuery.of(context).size.width;
     final horizontalPadding = screenWidth * 0.08;
 
@@ -42,15 +102,15 @@ class _AIAgentPageState extends State<AIAgentPage> {
             Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
           } else if (index == 2) {
             // Navigate to ChallengesPage
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ExercisePage()),);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ExercisePage()),
+            );
           }
           // Optional: handle Chat (index == 1), Exercise (index == 2)
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             label: 'Chat',
@@ -67,7 +127,10 @@ class _AIAgentPageState extends State<AIAgentPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16),
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: 16,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -83,8 +146,10 @@ class _AIAgentPageState extends State<AIAgentPage> {
               ),
 
               const SizedBox(height: 16),
-              const Text('AI Agent',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+              const Text(
+                'AI Agent',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
 
               const SizedBox(height: 16),
               Row(
@@ -101,8 +166,10 @@ class _AIAgentPageState extends State<AIAgentPage> {
               ),
 
               const SizedBox(height: 20),
-              const Text('Appearance',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Appearance',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 12),
               GridView.builder(
                 shrinkWrap: true,
@@ -113,75 +180,126 @@ class _AIAgentPageState extends State<AIAgentPage> {
                   crossAxisSpacing: 10,
                 ),
                 itemCount: 9,
-                itemBuilder: (context, index) => GestureDetector(
-                  onTap: () => setState(() => selectedAvatar = index),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: selectedAvatar == index ? Color(0xFF6B578C) : Colors.transparent,
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Transform.scale(
-                        scale: _getScaleForIndex(index), // custom zoom level
-                        child: Image.asset(
-                          'images/avatar${index + 1}.png',
-                          fit: BoxFit.cover,
-                          alignment: _getAlignmentForIndex(index),
+                itemBuilder:
+                    (context, index) => GestureDetector(
+                      onTap: () async {
+                        setState(() {
+                          selectedAvatar = index;
+                        });
+                        final dbHelper = DBHelper();
+                        final prefs = await SharedPreferences.getInstance();
+                        final id = userId ?? prefs.getInt('userId');
+                        print('Saving for userId: $id');
+                        await dbHelper.updateUser(id!, {
+                          'ai_avatar_id': selectedAvatar,
+                        });
+                        await printUserInfo(id!);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color:
+                                selectedAvatar == index
+                                    ? Color(0xFF6B578C)
+                                    : Colors.transparent,
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Transform.scale(
+                            scale: _getScaleForIndex(
+                              index,
+                            ), // custom zoom level
+                            child: Image.asset(
+                              'images/avatar${index + 1}.png',
+                              fit: BoxFit.cover,
+                              alignment: _getAlignmentForIndex(index),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
               ),
 
               const SizedBox(height: 24),
-              const Text('Personality',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              const Text("*Select each for more information",
-                  style: TextStyle(fontSize: 12, color: Colors.grey)),
+              const Text(
+                'Personality',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                "*Select each for more information",
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
               const SizedBox(height: 10),
               Wrap(
                 spacing: 16,
                 runSpacing: 10,
-                children: personalities.map((type) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Radio<String>(
-                        value: type,
-                        groupValue: selectedPersonality,
-                        onChanged: (value) => setState(() => selectedPersonality = value!),
-                        activeColor: Color(0xFF6B578C),
-                      ),
-                      Text(type),
-                    ],
-                  );
-                }).toList(),
+                children:
+                    personalities.map((type) {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Radio<String>(
+                            value: type,
+                            groupValue: selectedPersonality,
+                            onChanged: (value) async {
+                              setState(() {
+                                selectedPersonality = value!;
+                              });
+                              final dbHelper = DBHelper();
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              final id = userId ?? prefs.getInt('userId');
+                              print('Saving for userId: $id');
+                              await dbHelper.updateUser(id!, {
+                                'ai_personality': selectedPersonality,
+                              });
+                              await printUserInfo(id!);
+                            },
+                            activeColor: Color(0xFF6B578C),
+                          ),
+                          Text(type),
+                        ],
+                      );
+                    }).toList(),
               ),
 
               const SizedBox(height: 20),
-              const Text('Voice', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Voice',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 10),
               Wrap(
                 spacing: 16,
-                children: voices.map((voice) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Radio<String>(
-                        value: voice,
-                        groupValue: selectedVoice,
-                        onChanged: (value) => setState(() => selectedVoice = value!),
-                        activeColor: Color(0xFF6B578C),
-                      ),
-                      Text(voice),
-                    ],
-                  );
-                }).toList(),
+                children:
+                    voices.map((voice) {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Radio<String>(
+                            value: voice,
+                            groupValue: selectedVoice,
+                            onChanged: (value) async {
+                              setState(() => selectedVoice = value!);
+                              final dbHelper = DBHelper();
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              final id = userId ?? prefs.getInt('userId');
+                              print('Saving for userId: $id');
+                              await dbHelper.updateUser(id!, {
+                                'ai_voice': selectedVoice,
+                              });
+                              await printUserInfo(id!);
+                            },
+                            activeColor: Color(0xFF6B578C),
+                          ),
+                          Text(voice),
+                        ],
+                      );
+                    }).toList(),
               ),
             ],
           ),

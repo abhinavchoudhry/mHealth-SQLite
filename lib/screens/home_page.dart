@@ -4,7 +4,6 @@ import 'challenges.dart';
 import 'exercise.dart';
 import 'exercise_lib/exercise_lib.dart';
 
-
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -14,13 +13,23 @@ class HomePage extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.emoji_events_outlined, color: Colors.black),
-          onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => ChallengesPage()),);},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ChallengesPage()),
+            );
+          },
         ),
         actions: [
           IconButton(
             icon: Icon(Icons.settings, color: Colors.black),
-            onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
-          )
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
+          ),
         ],
       ),
       body: Padding(
@@ -41,27 +50,36 @@ class HomePage extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  'Images/home_page1.png',
-                  fit: BoxFit.cover,
-                ),
+                child: Image.asset('Images/home_page1.png', fit: BoxFit.cover),
               ),
             ),
             SizedBox(height: 24),
-            _buildActionButton(context, Icons.chat_bubble_outline, "Chat with mHealth AI", () {
-
-            }),
+            _buildActionButton(
+              context,
+              Icons.chat_bubble_outline,
+              "Chat with mHealth AI",
+              () {},
+            ),
 
             _buildActionButton(context, Icons.list, "View your Exercises", () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ExerciseLibraryPage()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ExercisePage()),
+              );
             }),
 
-            _buildActionButton(context, Icons.bar_chart, "View your Activity", () {
-
-            }),
-            _buildActionButtonWithProgress(context, Icons.settings, "Personalize your profile", 0.7),
-
-
+            _buildActionButton(
+              context,
+              Icons.bar_chart,
+              "View your Activity",
+              () {},
+            ),
+            _buildActionButtonWithProgress(
+              context,
+              Icons.settings,
+              "Personalize your profile",
+              0.7,
+            ),
           ],
         ),
       ),
@@ -78,15 +96,15 @@ class HomePage extends StatelessWidget {
             Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
           } else if (index == 2) {
             // Navigate to ChallengesPage
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ExercisePage()),);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ExercisePage()),
+            );
           }
           // Optional: handle Chat (index == 1), Exercise (index == 2)
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             label: 'Chat',
@@ -104,7 +122,12 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(BuildContext context, IconData icon, String title, VoidCallback onTap) {
+  Widget _buildActionButton(
+    BuildContext context,
+    IconData icon,
+    String title,
+    VoidCallback onTap,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: InkWell(
@@ -134,10 +157,12 @@ class HomePage extends StatelessWidget {
     );
   }
 
-
-
-  Widget _buildActionButtonWithProgress(BuildContext context, IconData icon,
-      String title, double progress) {
+  Widget _buildActionButtonWithProgress(
+    BuildContext context,
+    IconData icon,
+    String title,
+    double progress,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: InkWell(
