@@ -33,7 +33,6 @@ class DBHelper {
     final path = join(dbPath, 'user.db');
 
     return await openDatabase(
-<<<<<<< HEAD
       path,
       version: 8,
       onCreate: (db, version) async {
@@ -66,7 +65,6 @@ class DBHelper {
       ''');
       },
     );
-=======
       path, 
       version: 3, // Incremented version to add exercise tables
       onCreate: (db, version) async {
@@ -127,7 +125,6 @@ class DBHelper {
     });
 
     await _insertDefaultExercises(db);
->>>>>>> 3aecc5b (WIP: routine changes)
   }
 
   Future<int> insertUser(Map<String, dynamic> user) async {
@@ -151,13 +148,8 @@ class DBHelper {
   }
 
   Future<List<Map<String, dynamic>>> getUsers() async {
-<<<<<<< HEAD
-    final dbClient = await db;
-    return await dbClient.query('user_dim');
-=======
   final dbClient = await db;
   return await dbClient.query('user_dim');
->>>>>>> 3aecc5b (WIP: routine changes)
   }
 
   Future<Map<String, dynamic>?> getUserById(int id) async {
@@ -174,17 +166,6 @@ class DBHelper {
       return null;
     }
   }
-<<<<<<< HEAD
-
-  Future<int> updateUser(int id, Map<String, dynamic> data) async {
-    final dbClient = await db;
-    return await dbClient.update(
-      'user_dim',
-      data,
-      where: 'user_dim_id = ?',
-      whereArgs: [id],
-    );
-=======
   }
 
   Future<int> updateUser(int id, Map<String, dynamic> data) async {
@@ -430,7 +411,6 @@ class DBHelper {
       print('Error inserting library exercise: $e');
       rethrow;
     }
->>>>>>> 3aecc5b (WIP: routine changes)
   }
 
   Future<Map<String, dynamic>?> getUserByEmail(String email) async {
