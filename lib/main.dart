@@ -9,6 +9,8 @@ import 'screens/auth/create_acc4.dart';
 import 'screens/auth/create_acc5.dart';
 import 'screens/auth/create_acc6.dart';
 import '/screens/exercise_lib/pre_defined_ex/arms_exercises.dart';
+import '/screens/exercise_lib/exercise_lib.dart';
+import 'screens/exercise.dart';
 import '/screens/exercise_lib/pre_defined_ex/bicep_curl/bicep_curl.dart';
 import 'db_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
