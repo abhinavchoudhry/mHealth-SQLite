@@ -79,10 +79,8 @@ class CustomExercise {
   String toString() => 'CustomExercise(id: $id, name: $exerciseName, targetArea: $targetArea)';
 }
 
-class CustomExercise {
+class ExerciseLibrary {
   final int? id;
-  final int userDimId;
-  final String dateCreated;
   final String exerciseName;
   final String targetArea;
   final String? description;
@@ -91,10 +89,8 @@ class CustomExercise {
   final String? warning;
   final String? photoPosition;
 
-  CustomExercise({
+  ExerciseLibrary({
     this.id,
-    required this.userDimId,
-    required this.dateCreated,
     required this.exerciseName,
     required this.targetArea,
     this.description,
@@ -105,8 +101,6 @@ class CustomExercise {
   });
 
   Map<String, dynamic> toMap() => {
-    'user_dim_id': userDimId,
-    'date_created': dateCreated,
     'exercise_name': exerciseName,
     'target_area': targetArea,
     'description': description,
@@ -116,10 +110,8 @@ class CustomExercise {
     'photo_position': photoPosition,
   };
 
-  factory CustomExercise.fromMap(Map<String, dynamic> map) => CustomExercise(
-    id: map['user_exercise_dim_id'],
-    userDimId: map['user_dim_id'] ?? 0,
-    dateCreated: map['date_created'] ?? '',
+  factory ExerciseLibrary.fromMap(Map<String, dynamic> map) => ExerciseLibrary(
+    id: map['exercise_library_dim_id'],
     exerciseName: map['exercise_name'] ?? '',
     targetArea: map['target_area'] ?? '',
     description: map['description'],
@@ -128,4 +120,7 @@ class CustomExercise {
     warning: map['warning'],
     photoPosition: map['photo_position'],
   );
+
+  @override
+  String toString() => 'ExerciseLibrary(id: $id, name: $exerciseName, targetArea: $targetArea)';
 }

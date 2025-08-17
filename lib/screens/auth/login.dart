@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mhealthapp/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mhealthapp/db_helper.dart';
 import 'package:crypto/crypto.dart';
@@ -39,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
     if (user != null && user['pwd'] == hashedPassword) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('userId', user['user_dim_id']);
-
+      await NavigationHelper.setLoggedInUser(email);
       Navigator.pushReplacementNamed(context, '/home'); // or your main page
     } else {
       _showError("Invalid email or password");

@@ -7,7 +7,12 @@ import 'package:flutter/material.dart';
 
 
 class CreateWorkoutPage extends StatelessWidget {
-  const CreateWorkoutPage({super.key});
+  final int userId;
+
+  const CreateWorkoutPage({
+    super.key,
+    required this.userId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +109,7 @@ class CreateWorkoutPage extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const BuildRoutinePage()));
+                  MaterialPageRoute(builder: (context) => BuildRoutinePage(userId: userId)));
               },
               child: const Text(
                 '+ Build Routine',

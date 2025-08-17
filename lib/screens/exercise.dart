@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mhealthapp/db_helper.dart';
 import 'Settings/settings_1.dart';
 import 'challenges.dart';
 import 'exercise_lib/exercise_lib.dart';
@@ -87,10 +88,19 @@ class ExercisePage extends StatelessWidget {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                // Get userId only when we actually need it
+                final dbHelper = DBHelper();
+                int userId = 1; // default
+                try {
+                  final user = await dbHelper.getUserByEmail('test@example.com');
+                  userId = user?['user_dim_id'] ?? 1;
+                } catch (e) {
+                  userId = 1;
+                }
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CreateWorkoutPage()),
+                  MaterialPageRoute(builder: (context) => CreateWorkoutPage(userId: userId)),
                 );
               },
               style: ElevatedButton.styleFrom(
