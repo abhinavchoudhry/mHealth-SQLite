@@ -1,6 +1,7 @@
 import 'package:mhealthapp/db_helper.dart';
 import 'package:mhealthapp/models/routine_exercise.dart';
 import 'package:mhealthapp/models/workout_routine.dart';
+import 'package:mhealthapp/screens/exercise_lib/exercise_lib.dart';
 import 'create_workout_own_popup.dart';
 import 'package:flutter/material.dart';
 
@@ -397,7 +398,7 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
       );
       
       // Save the complete routine with all exercises
-      //final routineId = await dbHelper.saveCompleteRoutine(routine, selectedExercises);
+      final routineId = await dbHelper.saveCompleteRoutine(routine, selectedExercises);
 
       if (mounted) {
         // Show success message
@@ -410,7 +411,10 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
         );
 
         // Navigate back to previous screen
-        Navigator.pop(context);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ExerciseLibraryPage(userId: widget.userId)),
+        );
       }
 
     } catch (e) {  

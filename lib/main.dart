@@ -19,6 +19,7 @@ import '/screens/exercise_lib/exercise pages/create_workout_own.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DBHelper().initDb();
+    
   runApp(MyApp());
 }
 
@@ -29,10 +30,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      initialRoute: '/exercise',
+      initialRoute: '/welcome',
       routes: {
-        '/home': (context) => HomePage(),
         '/welcome': (context) => const WelcomePage(),
+        '/home': (context) => HomePage(),
         '/login': (context) => const LoginPage(), // Create this next
         '/signup1': (context) => const CreateAccountStep1(),
         '/signup2': (context) => CreateAccountStep2(userData: {}),
@@ -42,7 +43,6 @@ class MyApp extends StatelessWidget {
         '/signup6': (context) => CreateAccountStep6(userData: {}),
         '/arms': (context) => const ArmsExercisesPage(),
         '/exercise':(context) => const ExercisePage(),
-        '/exercise_lib':(context) => const ExerciseLibraryPage(),
       },
 
       // Handle routes that need parameters
@@ -54,9 +54,17 @@ class MyApp extends StatelessWidget {
             builder: (context) => BuildRoutinePage(userId: userId),
           );
         }
-        
+
+        if (settings.name == '/exercise_lib') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          final userId = args?['userId'] ?? 1;
+          return MaterialPageRoute(
+            builder: (context) => ExerciseLibraryPage(userId: userId),
+          );
+        }
         return null;
       },
+
     );
   }
 }

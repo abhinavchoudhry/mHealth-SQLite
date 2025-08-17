@@ -6,6 +6,7 @@ import 'exercise_lib/exercise_lib.dart';
 import 'exercise_lib/exercise pages/create_workout.dart';
 import '/screens/home_page.dart';
 import 'exercise_lib/exercise pages/log_activity.dart';
+import '../main.dart';
 
 class ExercisePage extends StatelessWidget {
   const ExercisePage({super.key});
@@ -68,13 +69,17 @@ class ExercisePage extends StatelessWidget {
             ),
             SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ExerciseLibraryPage(),
-                  ),
-                );
+              onPressed: () async {
+                // Check if user is logged in before accessing exercise library
+                if (await NavigationHelper.ensureUserLoggedIn(context)) {
+                  final userId = await NavigationHelper.getCurrentUserId();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ExerciseLibraryPage(userId: userId!),
+                    ),
+                  );
+                };
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple.shade100,
@@ -89,19 +94,15 @@ class ExercisePage extends StatelessWidget {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
-                // Get userId only when we actually need it
-                final dbHelper = DBHelper();
-                int userId = 1; // default
-                try {
-                  final user = await dbHelper.getUserByEmail('test@example.com');
-                  userId = user?['user_dim_id'] ?? 1;
-                } catch (e) {
-                  userId = 1;
+                if (await NavigationHelper.ensureUserLoggedIn(context)) {
+                  final userId = await NavigationHelper.getCurrentUserId();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreateWorkoutPage(userId: userId!),
+                    ),
+                  );
                 }
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CreateWorkoutPage(userId: userId)),
-                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple.shade100,
