@@ -5,6 +5,7 @@ import 'dart:io';
 import 'models/exercise_models.dart';
 import 'models/workout_routine.dart';
 import 'models/routine_exercise.dart';
+import 'models/ai_routine_request.dart';
 
 
 class DBHelper {
@@ -39,22 +40,22 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 11,
+      version: 13,
       onCreate: (db, version) async {
         print('🔨 Creating database tables (version $version)...');
         await _createAllTables(db);
         await _insertDefaultExercises(db);
-        print('✅ Database created successfully');
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         print('🔄 Upgrading database from version $oldVersion to $newVersion...');
         // Add migration logic based on version
         if (oldVersion < 11) {
-          print('📝 Adding workout tables...');
           await _createWorkoutTables(db);
         }
-        
-        print('✅ Database upgrade completed');
+        if (oldVersion < 13) {
+          await db.execute('DROP TABLE IF EXISTS ai_routine_requests');
+          await _createWorkoutTables(db);
+        }
       },
       onOpen: (db) async {
         // Enable foreign key constraints
@@ -131,7 +132,6 @@ class DBHelper {
 
   // Create workout-related tables
   Future<void> _createWorkoutTables(Database db) async {
-  print('📝 Creating workout_routine_fact table...');
   await db.execute('''
     CREATE TABLE IF NOT EXISTS workout_routine_fact (
       workout_routine_fact_id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
@@ -143,7 +143,6 @@ class DBHelper {
     )
   ''');
 
-  print('📝 Creating routine_exercise_fact table...');
   await db.execute('''
     CREATE TABLE IF NOT EXISTS routine_exercise_fact (
       routine_exercise_fact_id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
@@ -163,11 +162,29 @@ class DBHelper {
       )
     )
   ''');
-  
-  print('✅ Workout tables created successfully');
+
+  await db.execute('''
+    CREATE TABLE ai_routine_requests (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      target_areas TEXT,
+      duration_minutes INTEGER,
+      intensity TEXT CHECK (intensity IN ('Light', 'Moderate', 'Intense')),
+      goals TEXT,
+      custom_goals TEXT,
+      health_conditions TEXT, 
+      fitness_level TEXT CHECK (fitness_level IN ('Beginner', 'Intermediate', 'Expert')),
+      additional_comments TEXT,
+      status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
+      generated_routine_id INTEGER,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES user_dim(user_dim_id) ON DELETE CASCADE
+    )
+  ''');
 }
 
-  // Insert some default exercises into the library
+  // Insert default exercises into the library
   Future<void> _insertDefaultExercises(Database db) async {
     final defaultExercises = [
       {
@@ -208,15 +225,14 @@ class DBHelper {
     }
   }
 
+
   Future<int> insertUser(Map<String, dynamic> user) async {
     final dbClient = await db;
 
-    // Normalize all values to strings where appropriate
     final cleanedUser = <String, dynamic>{};
 
     user.forEach((key, value) {
       if (key == "weight" || key == "height" || key == "RHR") {
-        //cleanedUser[key] = double.parse(value);
         cleanedUser[key] = (value is num) ? value.toDouble() : double.parse(value.toString().trim());
 
       }
@@ -276,7 +292,6 @@ class DBHelper {
   }
 
 
-  // CREATE - Save workout routine
   Future<int> insertWorkoutRoutine(WorkoutRoutine routine) async {
     try {
       final dbClient = await db;
@@ -293,7 +308,6 @@ class DBHelper {
     }
   }
 
-    // CREATE - Save routine exercise
   Future<int> insertRoutineExercise(RoutineExercise exercise) async {
     try {
       final dbClient = await db;
@@ -310,7 +324,6 @@ class DBHelper {
     }
   }
 
-// CREATE - Save complete routine with exercises (transaction)
   Future<int> saveCompleteRoutine(WorkoutRoutine routine, List<RoutineExercise> exercises) async {
     try {
       final dbClient = await db;
@@ -342,7 +355,7 @@ class DBHelper {
       rethrow;
     }
   }
-    // READ - Get all routines for a user
+
   Future<List<WorkoutRoutine>> getWorkoutRoutinesByUser(int userId) async {
     try {
       final dbClient = await db;
@@ -360,7 +373,6 @@ class DBHelper {
     }
   }
 
-  // READ - Get routine exercises with exercise details
   Future<List<RoutineExercise>> getRoutineExercisesWithDetails(int routineId) async {
     try {
       final dbClient = await db;
@@ -383,7 +395,6 @@ class DBHelper {
     }
   }
 
-  // READ - Get complete routine (routine + exercises)
   Future<Map<String, dynamic>?> getCompleteRoutine(int routineId) async {
     try {
       final dbClient = await db;
@@ -411,7 +422,6 @@ class DBHelper {
     }
   }
 
-  // DELETE - Remove routine and all its exercises
   Future<int> deleteWorkoutRoutine(int routineId) async {
     try {
       final dbClient = await db;
@@ -440,7 +450,7 @@ class DBHelper {
     }
   }
 
-  // CREATE - Add new custom exercise
+
   Future<int> insertCustomExercise(CustomExercise exercise) async {
     try {
       final dbClient = await db;
@@ -457,7 +467,6 @@ class DBHelper {
     }
   }
 
-  // READ - Get all custom exercises for a specific user
   Future<List<CustomExercise>> getCustomExercisesByUser(int userId) async {
     try {
       final dbClient = await db;
@@ -475,7 +484,6 @@ class DBHelper {
     }
   }
 
-  // READ - Get single custom exercise by ID
   Future<CustomExercise?> getCustomExerciseById(int exerciseId) async {
     try {
       final dbClient = await db;
@@ -496,7 +504,6 @@ class DBHelper {
     }
   }
 
-  // UPDATE - Modify existing custom exercise
   Future<int> updateCustomExercise(CustomExercise exercise) async {
     try {
       final dbClient = await db;
@@ -520,7 +527,6 @@ class DBHelper {
     }
   }
 
-  // DELETE - Remove custom exercise
   Future<int> deleteCustomExercise(int exerciseId) async {
     try {
       final dbClient = await db;
@@ -543,7 +549,6 @@ class DBHelper {
     }
   }
 
-  // SEARCH - Find custom exercises by name or target area
   Future<List<CustomExercise>> searchCustomExercises(int userId, String searchTerm) async {
     try {
       final dbClient = await db;
@@ -561,9 +566,7 @@ class DBHelper {
     }
   }
 
-  // ========== EXERCISE LIBRARY OPERATIONS ==========
 
-  // READ - Get all exercises from library
   Future<List<ExerciseLibrary>> getAllLibraryExercises() async {
     try {
       final dbClient = await db;
@@ -579,7 +582,6 @@ class DBHelper {
     }
   }
 
-  // READ - Get library exercises by target area
   Future<List<ExerciseLibrary>> getLibraryExercisesByTargetArea(String targetArea) async {
     try {
       final dbClient = await db;
@@ -597,7 +599,6 @@ class DBHelper {
     }
   }
 
-  // READ - Search library exercises
   Future<List<ExerciseLibrary>> searchLibraryExercises(String searchTerm) async {
     try {
       final dbClient = await db;
@@ -615,7 +616,6 @@ class DBHelper {
     }
   }
 
-  // CREATE - Add new exercise to library (admin function)
   Future<int> insertLibraryExercise(ExerciseLibrary exercise) async {
     try {
       final dbClient = await db;
@@ -631,4 +631,94 @@ class DBHelper {
       rethrow;
     }
   }
+  
+  
+  Future<int> insertAIRoutineRequest(AIRoutineRequest request) async {
+    final dbClient = await db;
+    final now = DateTime.now().toIso8601String();
+    
+    final requestMap = request.toMap();
+    requestMap['created_at'] = now;
+    requestMap['updated_at'] = now;
+    
+    return await dbClient.insert('ai_routine_requests', requestMap);
+  }
+
+  Future<int> updateAIRoutineRequest(AIRoutineRequest request) async {
+    final dbClient = await db;
+    final requestMap = request.toMap();
+    requestMap['updated_at'] = DateTime.now().toIso8601String();
+    
+    return await dbClient.update(
+      'ai_routine_requests',
+      requestMap,
+      where: 'id = ?',
+      whereArgs: [request.id],
+    );
+  }
+
+  Future<AIRoutineRequest?> getAIRoutineRequest(int id) async {
+    final dbClient = await db;
+    final List<Map<String, dynamic>> maps = await dbClient.query(
+      'ai_routine_requests',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return AIRoutineRequest.fromMap(maps.first);
+    }
+    return null;
+  }
+
+  Future<List<AIRoutineRequest>> getUserAIRoutineRequests(int userId) async {
+    final dbClient = await db;
+    final List<Map<String, dynamic>> maps = await dbClient.query(
+      'ai_routine_requests',
+      where: 'user_id = ?',
+      whereArgs: [userId],
+      orderBy: 'created_at DESC',
+    );
+
+    return List.generate(maps.length, (i) {
+      return AIRoutineRequest.fromMap(maps[i]);
+    });
+  }
+
+  Future<List<AIRoutineRequest>> getRequestsByStatus(String status) async {
+    final dbClient = await db;
+    final List<Map<String, dynamic>> maps = await dbClient.query(
+      'ai_routine_requests',
+      where: 'status = ?',
+      whereArgs: [status],
+      orderBy: 'created_at DESC',
+    );
+
+    return List.generate(maps.length, (i) {
+      return AIRoutineRequest.fromMap(maps[i]);
+    });
+  }
+
+  Future<int> updateRequestStatus(int id, String status) async {
+    final dbClient = await db;
+    return await dbClient.update(
+      'ai_routine_requests',
+      {
+        'status': status,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> deleteAIRoutineRequest(int id) async {
+    final dbClient = await db;
+    return await dbClient.delete(
+      'ai_routine_requests',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mhealthapp/screens/exercise_lib/exercise%20pages/create_custom_exercise_step1.dart';
 import 'screens/home_page.dart';
 import 'screens/auth/welcome_pg.dart';
 import 'screens/auth/login.dart';
@@ -14,7 +15,6 @@ import 'screens/exercise.dart';
 import 'db_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '/screens/exercise_lib/exercise pages/create_workout_own.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,6 +62,15 @@ class MyApp extends StatelessWidget {
             builder: (context) => ExerciseLibraryPage(userId: userId),
           );
         }
+
+        if (settings.name == '/create_custom_exercise') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          final userId = args?['userId'] ?? 1;
+          return MaterialPageRoute(
+            builder: (context) => CreateCustomExerciseStep1(userId: userId),
+          );
+        }
+
         return null;
       },
 
@@ -90,7 +99,6 @@ class NavigationHelper {
     }
   }
 
-  // Store logged-in user (call this after successful login)
   static Future<void> setLoggedInUser(String email) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('logged_in_user_email', email);
@@ -109,7 +117,7 @@ class NavigationHelper {
     await prefs.remove('logged_in_user_email');
   }
   
-  // Helper method to ensure user is logged in before navigation
+  // Helper to ensure user is logged in before navigation
   static Future<bool> ensureUserLoggedIn(BuildContext context) async {
     final userId = await getCurrentUserId();
     
@@ -129,12 +137,11 @@ class NavigationHelper {
   static Future<void> navigateToCreateRoutine(BuildContext context) async {
     final userId = await getCurrentUserId();
     
-    // If no user is logged in, redirect to login
     if (userId == null) {
       Navigator.pushNamedAndRemoveUntil(
         context,
         '/login',
-        (route) => false, // Clear all previous routes
+        (route) => false,
       );
       return;
     }
@@ -142,6 +149,25 @@ class NavigationHelper {
     Navigator.pushNamed(
       context,
       '/create_routine',
+      arguments: {'userId': userId},
+    );
+  }
+
+  static Future<void> navigateToCreateCustomExercise(BuildContext context) async {
+    final userId = await getCurrentUserId();
+    
+    if (userId == null) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/login',
+        (route) => false,
+      );
+      return;
+    }
+    
+    Navigator.pushNamed(
+      context,
+      '/create_custom_exercise',
       arguments: {'userId': userId},
     );
   }

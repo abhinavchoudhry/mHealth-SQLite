@@ -133,9 +133,11 @@ class CreateWorkoutPage extends StatelessWidget {
             const SizedBox(height: 4),
             GestureDetector(
               onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const GenerateAIRoutinePopup(),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GenerateAIRoutinePopup(userId: userId),
+                  ),
                 );
               },
               child: const Text(

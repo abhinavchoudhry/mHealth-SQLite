@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mhealthapp/db_helper.dart';
+import 'package:mhealthapp/main.dart';
 import 'package:mhealthapp/models/exercise_models.dart';
 import 'package:mhealthapp/models/workout_routine.dart';
 import '../Settings/settings_1.dart';
@@ -114,6 +115,31 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
                   SizedBox(height: 20),
                   sectionTitle("Your Exercises"),
                   SizedBox(height: 8),
+                  // Row(
+                  //   children: [
+                  //     // Create Custom Exercise Button
+                  //     Expanded(
+                  //       child: ElevatedButton.icon(
+                  //         onPressed: () {
+                  //           // Navigate to custom exercise creation
+                  //           NavigationHelper.navigateToCreateCustomExercise(context);
+                  //         },
+                  //         icon: const Icon(Icons.add_circle_outline, size: 20),
+                  //         label: const Text('Create Custom Exercise'),
+                  //         style: ElevatedButton.styleFrom(
+                  //           backgroundColor: const Color(0xFF6B578C),
+                  //           foregroundColor: Colors.white,
+                  //           shape: RoundedRectangleBorder(
+                  //             borderRadius: BorderRadius.circular(8),
+                  //           ),
+                  //           minimumSize: const Size.fromHeight(44),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     const SizedBox(width: 8),
+                  //   ],
+                  // ),
+                  // SizedBox(height: 12),
                   _buildCustomExercisesSection(),
                   Align(
                     alignment: Alignment.centerRight,
@@ -407,54 +433,22 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
 
   void _viewRoutineDetails(WorkoutRoutine routine) {
     // Navigate to routine details page
-    // You can implement this based on your app's navigation structure
     print('View routine: ${routine.workoutRoutineName}');
-    
-    // Example navigation:
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => RoutineDetailsPage(routineId: routine.id!),
-    //   ),
-    // );
   }
 
   void _viewExerciseDetails(CustomExercise exercise) {
     // Navigate to exercise details page
     print('View exercise: ${exercise.exerciseName}');
-    
-    // Example navigation:
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => ExerciseDetailsPage(exercise: exercise),
-    //   ),
-    // );
+
   }
 
   void _showAllRoutines() {
     // Navigate to a page showing all user routines
     print('Show all routines for user: ${widget.userId}');
-    
-    // Example navigation:
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => AllRoutinesPage(userId: widget.userId),
-    //   ),
-    // );
   }
 
   void _showAllCustomExercises() {
     // Navigate to a page showing all user custom exercises
     print('Show all custom exercises for user: ${widget.userId}');
-    
-    // Example navigation:
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => AllCustomExercisesPage(userId: widget.userId),
-    //   ),
-    // );
   }
 }

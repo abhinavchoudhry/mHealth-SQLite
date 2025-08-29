@@ -3,7 +3,7 @@ import 'dart:async';
 import 'exercise_routine_ai.dart'; 
 
 class LoadingDialog extends StatefulWidget {
-  const LoadingDialog({super.key});
+  const LoadingDialog({super.key, required userId});
 
   @override
   State<LoadingDialog> createState() => _LoadingDialogState();

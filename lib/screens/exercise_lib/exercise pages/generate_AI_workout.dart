@@ -3,7 +3,12 @@ import 'gen_AI_workout_2.dart';
 import 'package:flutter/material.dart';
 
 class GenerateAIRoutinePopup extends StatefulWidget {
-  const GenerateAIRoutinePopup({super.key});
+  final int userId;
+
+    const GenerateAIRoutinePopup({
+      super.key,
+      required this.userId,
+    });
 
   @override
   State<GenerateAIRoutinePopup> createState() => _GenerateAIRoutinePopupState();
@@ -15,152 +20,234 @@ class _GenerateAIRoutinePopupState extends State<GenerateAIRoutinePopup> {
   final TextEditingController durationController = TextEditingController();
   String? selectedIntensity;
 
-  final List<String> areas = [
-    "Arms", "Back", "Legs", "Shoulders", "Abdomen", "Full Body"
-  ];
+    final Map<String, bool> targetAreas = {
+    'Arms': false,
+    'Back': false,
+    'Legs': false,
+    'Shoulders': false,
+    'Abdomen': false,
+    'Full Body': false,
+  };
+
+  bool get hasSelectedTargetArea => targetAreas.values.any((selected) => selected);
+  bool get canProceed => 
+    hasSelectedTargetArea && 
+    durationController.text.trim().isNotEmpty && 
+    selectedIntensity != null;
+
+  void _onNext() {
+    if (!canProceed) return;
+
+    final selectedTargets = targetAreas.entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key)
+        .toList();
+
+    final workoutData = {
+      'user_id': widget.userId,
+      'target_areas': selectedTargets,
+      'duration_minutes': int.tryParse(durationController.text.trim()),
+      'intensity': selectedIntensity!,
+    };
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserGoalsPopup(workoutData: workoutData),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      insetPadding: const EdgeInsets.all(16),
+    final screenWidth = MediaQuery.of(context).size.width;
+    final horizontalPadding = screenWidth * 0.08;
+
+    return Scaffold(
       backgroundColor: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Close Button
-              Align(
-                alignment: Alignment.topRight,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close, size: 28),
-                ),
-              ),
-
-              const SizedBox(height: 8),
-              const Text(
-                'Target Area(s):',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-              ),
-
-              const SizedBox(height: 12),
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                childAspectRatio: 4.5,
-                children: areas.map((area) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Checkbox(
-                        value: selectedAreas.contains(area),
-                        onChanged: (value) {
-                          setState(() {
-                            if (value == true) {
-                              selectedAreas.add(area);
-                            } else {
-                              selectedAreas.remove(area);
-                            }
-                          });
-                        },
-                        activeColor: const Color(0xFF6B578C),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      Text(area),
-                    ],
-                  );
-                }).toList(),
-              ),
-
-              const SizedBox(height: 24),
-              const Text(
-                'Workout Duration',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 50,
-                child: TextField(
-                  controller: durationController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    hintText: 'Enter a value',
-                    hintStyle: const TextStyle(
-                        color: Color(0xFF6B578C), fontWeight: FontWeight.w500),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color(0xFF6B578C)),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color(0xFF6B578C)),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                '*enter number in minutes',
-                style: TextStyle(fontSize: 12, color: Colors.black54),
-              ),
-
-              const SizedBox(height: 24),
-              const Text(
-                'Exercise Intensity',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-              ),
-              ...['Light', 'Moderate', 'Intense'].map((level) {
-                return RadioListTile<String>(
-                  title: Text(level),
-                  value: level,
-                  groupValue: selectedIntensity,
-                  activeColor: const Color(0xFF6B578C),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedIntensity = value;
-                    });
-                  },
-                  contentPadding: EdgeInsets.zero,
-                );
-              }),
-
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close current popup first
-
-                    // Then open the new one
-                    showDialog(
-                      context: context,
-                      builder: (context) => const UserGoalsPopup(),
-                    );
-                  },
-
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6B578C),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    minimumSize: const Size.fromHeight(48),
-                  ),
-                  child: const Text('Next'),
-                ),
-              ),
-            ],
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF6B578C),
+        foregroundColor: Colors.white,
+        title: const Text("mHealth"),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {},
           ),
+        ],
+      ),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 24),
+
+            // Header
+            const Text(
+              'Generate AI Workout Routine',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Create a personalized workout routine tailored to your specific needs and goals using AI.',
+              style: TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+            const SizedBox(height: 20),
+
+
+            //Target Areas
+            const Text(
+              'Target Area(s) of Body:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 12),
+
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 4,
+                childAspectRatio: 4,
+              ),
+              itemCount: targetAreas.length,
+              itemBuilder: (context, index) {
+                final area = targetAreas.keys.elementAt(index);
+                return Row(
+                  children: [
+                    Checkbox(
+                      value: targetAreas[area],
+                      onChanged: (value) {
+                        setState(() {
+                          targetAreas[area] = value ?? false;
+                        });
+                      },
+                      activeColor: const Color(0xFF6B578C),
+                    ),
+                    Expanded(
+                      child: Text(
+                        area,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+
+            const SizedBox(height: 24),
+
+
+            // Workout Duration
+            const Text(
+              'Workout Duration',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: durationController,
+              keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                hintText: 'Enter duration in minutes',
+                hintStyle: const TextStyle(color: Color(0xFF6B578C)),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Color(0xFF6B578C)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Color(0xFF6B578C), width: 2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.all(12),
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              '*Enter number in minutes',
+              style: TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Exercise Intensity
+            const Text(
+              'Exercise Intensity',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+
+            ...['Light', 'Moderate', 'Intense'].map((intensity) {
+              return RadioListTile<String>(
+                title: Text(intensity),
+                value: intensity,
+                groupValue: selectedIntensity,
+                activeColor: const Color(0xFF6B578C),
+                onChanged: (value) {
+                  setState(() {
+                    selectedIntensity = value;
+                  });
+                },
+                contentPadding: EdgeInsets.zero,
+              );
+            }).toList(),
+
+            const Spacer(),
+
+            // Next Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: canProceed ? _onNext : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: canProceed 
+                      ? const Color(0xFF6B578C) 
+                      : Colors.grey,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  minimumSize: const Size.fromHeight(48),
+                ),
+                child: const Text(
+                  'Next',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+          ],
         ),
       ),
-
+      // Bottom Navigation Bar
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFF6B578C),
+        unselectedItemColor: Colors.grey,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        currentIndex: 2,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
+          BottomNavigationBarItem(icon: Icon(Icons.format_list_bulleted), label: 'Exercise'),
+          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Activity'),
+        ],
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    durationController.dispose();
+    super.dispose();
   }
 }

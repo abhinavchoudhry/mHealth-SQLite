@@ -3,7 +3,12 @@ import 'gen_AI_workout_3.dart';
 import 'package:flutter/material.dart';
 
 class UserGoalsPopup extends StatefulWidget {
-  const UserGoalsPopup({super.key});
+  final Map<String, dynamic> workoutData;
+
+  const UserGoalsPopup({
+    super.key,
+    required this.workoutData,
+  });
 
   @override
   State<UserGoalsPopup> createState() => _UserGoalsPopupState();
@@ -11,172 +16,290 @@ class UserGoalsPopup extends StatefulWidget {
 
 class _UserGoalsPopupState extends State<UserGoalsPopup> {
   final List<String> selectedGoals = [];
-  final List<String> allGoals = [
-    'Weight Loss', 'Muscle Gain', 'Cardiovascular Fitness', 'Functional Fitness',
-  ];
-
+  final TextEditingController customGoalsController = TextEditingController();
+  final TextEditingController healthConditionsController = TextEditingController();
   String? selectedFitnessLevel;
+
+  final Map<String, bool> goals = {
+    'Weight Loss': false,
+    'Muscle Gain': false,
+    'Cardiovascular Fitness': false,
+    'Functional Fitness': false,
+  };
+
+  bool get hasSelectedGoal => goals.values.any((selected) => selected);
+  bool get canProceed => hasSelectedGoal && selectedFitnessLevel != null;
+
+  void _addCustomGoal() {
+    final custom = customGoalsController.text.trim();
+    if (custom.isNotEmpty && !goals.containsKey(custom)) {
+      setState(() {
+        goals[custom] = true;
+        customGoalsController.clear();
+      });
+    }
+  }
+
+  void _onNext() {
+    if (!canProceed) return;
+
+    final selectedGoalsList = goals.entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key)
+        .toList();
+
+    // Parse health conditions from text input
+    final healthConditionsList = healthConditionsController.text.trim().isEmpty
+        ? <String>[]
+        : healthConditionsController.text
+            .split(',')
+            .map((condition) => condition.trim())
+            .where((condition) => condition.isNotEmpty)
+            .toList();
+
+    final updatedData = Map<String, dynamic>.from(widget.workoutData);
+    updatedData['goals'] = selectedGoalsList;
+    updatedData['custom_goals'] = customGoalsController.text.trim().isEmpty 
+        ? null 
+        : customGoalsController.text.trim();
+    updatedData['health_conditions'] = healthConditionsList;
+    updatedData['fitness_level'] = selectedFitnessLevel!;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AdditionalCommentsPopup(workoutData: updatedData),
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      insetPadding: const EdgeInsets.all(16),
+    final screenWidth = MediaQuery.of(context).size.width;
+    final horizontalPadding = screenWidth * 0.08;
+
+    return Scaffold(
       backgroundColor: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close, size: 28),
-                ),
-              ),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF6B578C),
+        foregroundColor: Colors.white,
+        title: const Text("mHealth"),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    // Exercise Goals
+                    const Text(
+                      'Exercise Goal(s):',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 8),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 4,
+                        childAspectRatio: 3.5,
+                      ),
+                      itemCount: goals.length,
+                      itemBuilder: (context, index) {
+                        final goal = goals.keys.elementAt(index);
+                        return Row(
+                          children: [
+                            Checkbox(
+                              value: goals[goal],
+                              onChanged: (value) {
+                                setState(() {
+                                  goals[goal] = value ?? false;
+                                });
+                              },
+                              activeColor: const Color(0xFF6B578C),
+                            ),
+                            Expanded(
+                              child: Text(
+                                goal,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
 
-              const SizedBox(height: 12),
-              const Text(
-                'Exercise Goal(s):',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-             
-              Wrap(
-                spacing: 24,
-                runSpacing: 12,
-                children: allGoals.map((goal) {
-                  return SizedBox(
-                    width: 140,
-                    child: Row(
+                    // Add custom goal
+                    Row(
                       children: [
-                        Checkbox(
-                          value: selectedGoals.contains(goal),
-                          onChanged: (value) {
-                            setState(() {
-                              if (value == true) {
-                                selectedGoals.add(goal);
-                              } else {
-                                selectedGoals.remove(goal);
-                              }
-                            });
-                          },
-                          activeColor: const Color(0xFF6B578C),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
+                        Expanded(
+                          child: TextField(
+                            controller: customGoalsController,
+                            decoration: InputDecoration(
+                              hintText: 'Add custom goal...',
+                              hintStyle: const TextStyle(color: Color(0xFF6B578C)),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Color(0xFF6B578C)),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Color(0xFF6B578C), width: 2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.all(12),
+                            ),
                           ),
                         ),
-                        Expanded(child: Text(goal)),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: _addCustomGoal,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF6B578C),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            minimumSize: const Size(60, 48),
+                          ),
+                          child: const Text('Add'),
+                        ),
                       ],
                     ),
-                  );
-                }).toList(),
-              ),
 
-              const SizedBox(height: 8),
+                    const SizedBox(height: 24),
 
-              /// Add custom goal link
-              GestureDetector(
-                onTap: () {
-                  // Add custom goal logic
-                },
-                child: const Padding(
-                  padding: EdgeInsets.only(left: 50),
-                  child: Text(
-                    '+ Add Custom Goal',
-                    style: TextStyle(
-                      color: Color(0xFF6B578C),
-                      fontWeight: FontWeight.w600,
+                    // Health Conditions
+                    const Text(
+                      'Preexisting Health Condition(s)',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
-                  ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Add any preexisting health conditions not already recorded in app.',
+                      style: TextStyle(fontSize: 12, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      '(e.g., arthritis, heart conditions, joint pain, past injuries, etc.)',
+                      style: TextStyle(fontSize: 11, color: Colors.black45),
+                    ),
+                    const SizedBox(height: 12),
+
+                    TextField(
+                      controller: healthConditionsController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Enter health conditions separated by commas...',
+                        hintStyle: const TextStyle(color: Color(0xFF6B578C)),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Color(0xFF6B578C)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Color(0xFF6B578C), width: 2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.all(12),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Fitness Level
+                    const Text(
+                      'Current Fitness Level',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 8),
+
+                    ...['Beginner', 'Intermediate', 'Expert'].map((level) {
+                      return RadioListTile<String>(
+                        title: Text(level),
+                        value: level,
+                        groupValue: selectedFitnessLevel,
+                        activeColor: const Color(0xFF6B578C),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedFitnessLevel = value;
+                          });
+                        },
+                        contentPadding: EdgeInsets.zero,
+                      );
+                    }).toList(),
+                  ],
                 ),
               ),
+            ),
 
-              const SizedBox(height: 24),
-              const Text(
-                'Preexisting Health Condition(s)',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Add any preexisting health conditions not already recorded in app.',
-                style: TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                '(e.g., arthritis, heart conditions, joint pain, past injuries, etc.)',
-                style: TextStyle(fontSize: 12),
-              ),
-
-              const SizedBox(height: 8),
-
-              GestureDetector(
-                onTap: () {
-                  // condition logic
-                },
+            // Next Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: canProceed ? _onNext : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: canProceed 
+                      ? const Color(0xFF6B578C) 
+                      : Colors.grey,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  minimumSize: const Size.fromHeight(48),
+                ),
                 child: const Text(
-                  '+ Add Preexisting Health Condition',
-                  style: TextStyle(
-                    color: Color(0xFF6B578C),
-                    fontWeight: FontWeight.w600,
-                  ),
+                  'Next',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
+            ),
 
-              const SizedBox(height: 24),
-              const Text(
-                'Current Fitness Level',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-
-              /// Fitness level radio buttons
-              ...['Beginner', 'Intermediate', 'Expert'].map((level) {
-                return RadioListTile<String>(
-                  value: level,
-                  groupValue: selectedFitnessLevel,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedFitnessLevel = value;
-                    });
-                  },
-                  title: Text(level),
-                  activeColor: const Color(0xFF6B578C),
-                  contentPadding: EdgeInsets.zero,
-                );
-              }),
-
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close current popup first
-
-                    // open the new one
-                    showDialog(
-                      context: context,
-                      builder: (context) => const AdditionalCommentsPopup(),
-                    );
-                  },
-
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6B578C),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    minimumSize: const Size.fromHeight(48),
-                  ),
-                  child: const Text('Next'),
-                ),
-              ),
-            ],
-          ),
+            const SizedBox(height: 24),
+          ],
         ),
       ),
+      // Bottom Navigation Bar
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFF6B578C),
+        unselectedItemColor: Colors.grey,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        currentIndex: 2,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
+          BottomNavigationBarItem(icon: Icon(Icons.format_list_bulleted), label: 'Exercise'),
+          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Activity'),
+        ],
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    customGoalsController.dispose();
+    healthConditionsController.dispose();
+    super.dispose();
   }
 }
