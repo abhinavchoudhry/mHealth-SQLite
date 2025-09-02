@@ -16,6 +16,7 @@ class HealthInfo extends StatefulWidget {
 class _HealthInfostate extends State<HealthInfo> {
   int? userId;
   Map<String, dynamic>? userData;
+  String? weightUnit;
 
   @override
   void initState() {
@@ -41,6 +42,7 @@ class _HealthInfostate extends State<HealthInfo> {
         userId = data['id'];
         userData = data;
         // Store or display in UI as needed
+        weightUnit = data['weight_unit'] ?? 'kg';
       });
     } else {
       print('User not found');
@@ -119,17 +121,33 @@ class _HealthInfostate extends State<HealthInfo> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                EditableTextRow(
+                // EditableTextRow(
+                //   label: 'Weight',
+                //   initialValue:
+                //       (userData?["weight"]?.toString() ?? "") +
+                //       (userData?["weight_unit"] ?? ""),
+                // ),
+                // EditableTextRow(
+                //   label: 'Height',
+                //   initialValue:
+                //       (userData?["height"]?.toString() ?? "") +
+                //       (userData?["height_unit"] ?? ""),
+                // ),
+                EditableNumberWithUnitRow(
                   label: 'Weight',
-                  initialValue:
-                      (userData?["weight"]?.toString() ?? "") +
-                      (userData?["weight_unit"] ?? ""),
+                  fieldName: 'weight',
+                  unitFieldName: 'weight_unit',
+                  initialValue: userData?["weight"]?.toString() ?? "",
+                  initialUnit: userData?["weight_unit"] ?? "kg",
+                  units: ["kg", "lbs"],
                 ),
-                EditableTextRow(
+                EditableNumberWithUnitRow(
                   label: 'Height',
-                  initialValue:
-                      (userData?["height"]?.toString() ?? "") +
-                      (userData?["height_unit"] ?? ""),
+                  fieldName: 'height',
+                  unitFieldName: 'height_unit',
+                  initialValue: userData?["height"]?.toString() ?? "",
+                  initialUnit: userData?["height_unit"] ?? "cm",
+                  units: ["cm", "inch"],
                 ),
                 EditableTextRow(
                   label: 'Age',
@@ -242,6 +260,133 @@ class _EditableTextRowState extends State<EditableTextRow> {
               padding: EdgeInsets.only(left: 8.0, top: 4.0),
               child: Text('Edit', style: TextStyle(color: Colors.blue)),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+
+class EditableNumberWithUnitRow extends StatefulWidget {
+  final String label;
+  final String fieldName; // e.g. "weight" or "height"
+  final String unitFieldName; // e.g. "weight_unit" or "height_unit"
+  final String initialValue;
+  final String initialUnit;
+  final List<String> units; // e.g. ["kg","lbs"] or ["cm","inch"]
+
+  const EditableNumberWithUnitRow({
+    super.key,
+    required this.label,
+    required this.fieldName,
+    required this.unitFieldName,
+    required this.initialValue,
+    required this.initialUnit,
+    required this.units,
+  });
+
+  @override
+  State<EditableNumberWithUnitRow> createState() =>
+      _EditableNumberWithUnitRowState();
+}
+
+class _EditableNumberWithUnitRowState extends State<EditableNumberWithUnitRow> {
+  late TextEditingController _controller;
+  late String _selectedUnit;
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+    _selectedUnit =
+        widget.initialUnit.isNotEmpty ? widget.initialUnit : widget.units.first;
+    _focusNode = FocusNode();
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus) {
+        _saveToDatabase();
+      }
+    });
+  }
+
+  Future<void> _saveToDatabase() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('userId');
+    if (userId == null) return;
+
+    final dbHelper = DBHelper();
+    final double numericValue = double.tryParse(_controller.text) ?? 0.0;
+
+    await dbHelper.updateUser(userId, {
+      widget.fieldName: numericValue,
+      widget.unitFieldName: _selectedUnit,
+    });
+
+    print("Saved ${widget.label}: $numericValue $_selectedUnit");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.label,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              // TextField for numeric value
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  focusNode: _focusNode,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding: EdgeInsets.all(12),
+                  ),
+                  onEditingComplete: () async {
+                    FocusScope.of(context).unfocus(); // close keyboard
+                    await _saveToDatabase();
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+
+              // Radio group for unit selection
+              Column(
+                children:
+                    widget.units.map((unit) {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Radio<String>(
+                            value: unit,
+                            groupValue: _selectedUnit,
+                            onChanged: (value) async {
+                              setState(() => _selectedUnit = value!);
+                              await _saveToDatabase();
+                            },
+                          ),
+                          Text(unit),
+                        ],
+                      );
+                    }).toList(),
+              ),
+            ],
           ),
         ],
       ),

@@ -76,10 +76,12 @@ class ExercisePage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ExerciseLibraryPage(userId: userId!),
+                      builder:
+                          (context) => ExerciseLibraryPage(userId: userId!),
                     ),
                   );
-                };
+                }
+                ;
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple.shade100,
@@ -153,14 +155,14 @@ class ExercisePage extends StatelessWidget {
           // Navigate to HomePage
           if (index == 0) {
             Navigator.push(
-              context, 
-              MaterialPageRoute(builder: (context) => HomePage())
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
             );
           }
           // Navigate to ChatPage
           // else if (index == 1) {
           // }
-          // Navigate to ActivityPage 
+          // Navigate to ActivityPage
           // else if (index == 3) {
           //   Navigator.push(
           //     context,

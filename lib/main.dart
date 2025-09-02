@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 //import 'package:mhealthapp/screens/exercise_lib/exercise%20pages/create_custom_exercise_step1.dart';
+import 'package:mhealthapp/screens/auth/startup.dart';
 import 'screens/home_page.dart';
 import 'screens/auth/welcome_pg.dart';
 import 'screens/auth/login.dart';
@@ -9,17 +10,48 @@ import 'screens/auth/create_acc3.dart';
 import 'screens/auth/create_acc4.dart';
 import 'screens/auth/create_acc5.dart';
 import 'screens/auth/create_acc6.dart';
+import 'screens/auth/healthdata.dart';
 import '/screens/exercise_lib/pre_defined_ex/arms_exercises.dart';
 import '/screens/exercise_lib/exercise_lib.dart';
 import 'screens/exercise.dart';
 import 'db_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '/screens/exercise_lib/exercise pages/create_workout_own.dart';
+import 'package:mhealthapp/health/health_package.dart';
+import 'package:workmanager/workmanager.dart';
+import 'services/health_data_sync_service.dart';
+
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    WidgetsFlutterBinding.ensureInitialized();
+    print("Background task started: $task");
+    switch (task) {
+      case "syncHealthData":
+        try {
+          await HealthDataSyncService.syncToSQLite();
+          print("Background task $task executed at ${DateTime.now()}");
+        } catch (e) {
+          print("Background Task failed: $e");
+        }
+      case "syncYesterdayHealthData":
+        try {
+          await HealthDataSyncService.syncYesterdayToSQLite();
+          print("Background task $task executed at ${DateTime.now()}");
+        } catch (e) {
+          print("Background Task failed: $e");
+        }
+        break;
+    }
+
+    return Future.value(true);
+  });
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DBHelper().initDb();
-    
+  await Workmanager().initialize(callbackDispatcher);
   runApp(MyApp());
 }
 
@@ -42,7 +74,9 @@ class MyApp extends StatelessWidget {
         '/signup5': (context) => CreateAccountStep5(userData: {}),
         '/signup6': (context) => CreateAccountStep6(userData: {}),
         '/arms': (context) => const ArmsExercisesPage(),
-        '/exercise':(context) => const ExercisePage(),
+        '/exercise': (context) => const ExercisePage(),
+        '/startup': (context) => const StartupPage(),
+        '/healthdata': (context) => HealthDashboard(),
       },
 
       // Handle routes that need parameters
@@ -63,9 +97,16 @@ class MyApp extends StatelessWidget {
           );
         }
 
+        // if (settings.name == '/create_custom_exercise') {
+        //   final args = settings.arguments as Map<String, dynamic>?;
+        //   final userId = args?['userId'] ?? 1;
+        //   return MaterialPageRoute(
+        //     builder: (context) => CreateCustomExerciseStep1(userId: userId),
+        //   );
+        // }
+
         return null;
       },
-
     );
   }
 }
@@ -75,7 +116,6 @@ class NavigationHelper {
   static Future<int?> getCurrentUserId() async {
     final prefs = await SharedPreferences.getInstance();
     final userEmail = prefs.getString('logged_in_user_email');
-    
     if (userEmail == null || userEmail.isEmpty) {
       return null;
     }
@@ -107,17 +147,13 @@ class NavigationHelper {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('logged_in_user_email');
   }
-  
+
   // Helper to ensure user is logged in before navigation
   static Future<bool> ensureUserLoggedIn(BuildContext context) async {
     final userId = await getCurrentUserId();
-    
+
     if (userId == null) {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/login',
-        (route) => false,
-      );
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
       return false;
     }
     return true;
@@ -126,16 +162,12 @@ class NavigationHelper {
   // Navigate to create routine
   static Future<void> navigateToCreateRoutine(BuildContext context) async {
     final userId = await getCurrentUserId();
-    
+
     if (userId == null) {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/login',
-        (route) => false,
-      );
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
       return;
     }
-    
+
     Navigator.pushNamed(
       context,
       '/create_routine',
@@ -143,18 +175,16 @@ class NavigationHelper {
     );
   }
 
-  static Future<void> navigateToCreateCustomExercise(BuildContext context) async {
+  static Future<void> navigateToCreateCustomExercise(
+    BuildContext context,
+  ) async {
     final userId = await getCurrentUserId();
-    
+
     if (userId == null) {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/login',
-        (route) => false,
-      );
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
       return;
     }
-    
+
     Navigator.pushNamed(
       context,
       '/create_custom_exercise',

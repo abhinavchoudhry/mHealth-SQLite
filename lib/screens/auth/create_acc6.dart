@@ -36,7 +36,7 @@ class CreateAccountStep6 extends StatelessWidget {
               onPressed: () {
                 Navigator.pushNamedAndRemoveUntil(
                   context,
-                  '/home',
+                  '/startup',
                   (route) => true,
                 );
               },

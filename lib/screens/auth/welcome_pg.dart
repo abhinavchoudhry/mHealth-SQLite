@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mhealthapp/screens/home_page.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -42,7 +43,10 @@ class WelcomePage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: Text("Log In", style: TextStyle(fontSize: 16, color: Colors.white)),
+                    child: Text(
+                      "Log In",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
                   ),
                 ),
                 SizedBox(height: 16),
@@ -60,7 +64,10 @@ class WelcomePage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: Text("Create an Account", style: TextStyle(fontSize: 16)),
+                    child: Text(
+                      "Create an Account",
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
               ],

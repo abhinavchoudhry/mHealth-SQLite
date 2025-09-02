@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mhealthapp/main.dart';
+import 'package:mhealthapp/screens/auth/startup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mhealthapp/db_helper.dart';
 import 'package:crypto/crypto.dart';
@@ -40,8 +41,7 @@ class _LoginPageState extends State<LoginPage> {
     if (user != null && user['pwd'] == hashedPassword) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('userId', user['user_dim_id']);
-      await NavigationHelper.setLoggedInUser(email);
-      Navigator.pushReplacementNamed(context, '/home'); // or your main page
+      Navigator.pushReplacementNamed(context, '/startup'); // or your main page
     } else {
       _showError("Invalid email or password");
     }
@@ -118,24 +118,24 @@ class _LoginPageState extends State<LoginPage> {
                     activeColor: Colors.deepPurple,
                   ),
                   Text("Remember me"),
-                  Spacer(),
-                  TextButton(
-                    onPressed: () {
-                      // Add your forgot login logic here
-                    },
-                    style: TextButton.styleFrom(
-                      foregroundColor:
-                          Colors.deepPurple, // splash + highlight color
-                    ),
-                    child: const Text(
-                      "Forgot login?",
-                      style: TextStyle(
-                        color: Colors.deepPurple,
-                        decoration:
-                            TextDecoration.underline, // underline the text
-                      ),
-                    ),
-                  ),
+                  // Spacer(),
+                  // TextButton(
+                  //   onPressed: () {
+                  //     // Add your forgot login logic here
+                  //   },
+                  //   style: TextButton.styleFrom(
+                  //     foregroundColor:
+                  //         Colors.deepPurple, // splash + highlight color
+                  //   ),
+                  //   child: const Text(
+                  //     "Forgot login?",
+                  //     style: TextStyle(
+                  //       color: Colors.deepPurple,
+                  //       decoration:
+                  //           TextDecoration.underline, // underline the text
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
               SizedBox(height: 16),

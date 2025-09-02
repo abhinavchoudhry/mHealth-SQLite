@@ -1,13 +1,13 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:io';
+import 'package:mhealthapp/health/health_package.dart';
 
 import 'models/exercise_models.dart';
 import 'models/workout_routine.dart';
 import 'models/routine_exercise.dart';
 import 'models/ai_routine_request.dart';
 import 'models/log_routine.dart';
-
 
 class DBHelper {
   static final DBHelper _instance = DBHelper._internal();
@@ -22,17 +22,17 @@ class DBHelper {
     return _db!;
   }
 
-  Future<void> deleteDatabaseFile() async {
-    String path = join(
-      await getDatabasesPath(),
-      'user.db',
-    ); // Use your actual DB name
-    if (await File(path).exists()) {
-      await deleteDatabase(path);
-      print('✅ Database deleted: $path');
-    } else {
-      print('⚠️ Database does not exist at: $path');
-    }
+  Future<void> _dropAllTables(Database db) async {
+    // Drop child tables first (those with foreign keys)
+    await db.execute('DROP TABLE IF EXISTS routine_exercise_fact');
+    await db.execute('DROP TABLE IF EXISTS workout_routine_fact');
+    await db.execute('DROP TABLE IF EXISTS ai_routine_requests');
+    await db.execute('DROP TABLE IF EXISTS user_custom_exercise_dim');
+    await db.execute('DROP TABLE IF EXISTS exercise_library_dim');
+    await db.execute('DROP TABLE IF EXISTS workout_session_fact');
+    await db.execute('DROP TABLE IF EXISTS log_workout_fact');
+    await db.execute('DROP TABLE IF EXISTS daily_activity_fact');
+    await db.execute('DROP TABLE IF EXISTS user_dim');
   }
 
   Future<Database> initDb() async {
@@ -41,34 +41,22 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 14,
+      version: 19, // bump this when you change schema
       onCreate: (db, version) async {
-        print('🔨 Creating database tables (version $version)...');
         await _createAllTables(db);
-        await _insertDefaultExercises(db);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
-        print('🔄 Upgrading database from version $oldVersion to $newVersion...');
-        // Add migration logic based on version
-        if (oldVersion < 11) {
-          await _createWorkoutTables(db);
-        }
-        if (oldVersion < 13) {
-          await db.execute('DROP TABLE IF EXISTS ai_routine_requests');
-          await _createWorkoutTables(db);
-        }
-        if (oldVersion < 14) {
-          await _createLogWorkoutTable(db);
-        }
-      },
-      onOpen: (db) async {
-        // Enable foreign key constraints
-        await db.execute('PRAGMA foreign_keys = ON');
+        // During development: wipe and recreate
+        await _dropAllTables(db);
+        await _createAllTables(db);
+        await _insertDefaultExercises(db);
+        print(
+          "Database upgraded from $oldVersion to $newVersion, tables recreated",
+        );
       },
     );
   }
 
-// Create all tables (for onCreate)
   Future<void> _createAllTables(Database db) async {
     // User table
     await db.execute('''
@@ -98,6 +86,41 @@ class DBHelper {
         chatbot_summary TEXT
       )
     ''');
+
+    await db.execute('''
+    CREATE TABLE daily_activity_fact (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      total_steps INTEGER,
+      total_distance REAL,
+      total_calories INTEGER,
+      average_heart_rate INTEGER,
+      sleep_hours REAL,
+      exercise_minutes INTEGER,
+      sedentary_minutes INTEGER,
+      active_minutes INTEGER,
+      max_heart_rate INTEGER,
+      FOREIGN KEY(user_id) REFERENCES user_dim(user_dim_id),
+      UNIQUE(user_id, date)
+    )
+  ''');
+
+    await db.execute('''
+    CREATE TABLE workout_session_fact (
+      workout_session_fact_id TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      workout_name TEXT,
+      workout_date TEXT,
+      duration_min REAL,
+      start_time TEXT,
+      end_time TEXT,
+      calories_burned REAL,
+      avg_bpm REAL,
+      max_bpm REAL,
+      distance REAL
+    )
+  ''');
 
     // Exercise library table
     await db.execute('''
@@ -136,7 +159,7 @@ class DBHelper {
 
   // Create workout-related tables
   Future<void> _createWorkoutTables(Database db) async {
-  await db.execute('''
+    await db.execute('''
     CREATE TABLE IF NOT EXISTS workout_routine_fact (
       workout_routine_fact_id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
       user_dim_id INTEGER NOT NULL,
@@ -147,7 +170,7 @@ class DBHelper {
     )
   ''');
 
-  await db.execute('''
+    await db.execute('''
     CREATE TABLE IF NOT EXISTS routine_exercise_fact (
       routine_exercise_fact_id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
       workout_routine_fact_id INTEGER NOT NULL,
@@ -167,7 +190,7 @@ class DBHelper {
     )
   ''');
 
-  await db.execute('''
+    await db.execute('''
     CREATE TABLE ai_routine_requests (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
@@ -186,9 +209,9 @@ class DBHelper {
       FOREIGN KEY (user_id) REFERENCES user_dim(user_dim_id) ON DELETE CASCADE
     )
   ''');
-}
+  }
 
-// Create log routine table for tracking actual workout performances
+  // Create log routine table for tracking actual workout performances
   Future<void> _createLogWorkoutTable(Database db) async {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS log_workout_fact (
@@ -204,47 +227,52 @@ class DBHelper {
       )
     ''');
   }
+
   // Insert default exercises into the library
   Future<void> _insertDefaultExercises(Database db) async {
     final defaultExercises = [
       {
         'exercise_name': 'Push-ups',
         'target_area': 'Chest',
-        'description': 'Classic bodyweight exercise for chest, shoulders, and triceps',
+        'description':
+            'Classic bodyweight exercise for chest, shoulders, and triceps',
         'equipment': 'None',
-        'instructions': '1. Start in plank position\n2. Lower body to ground\n3. Push back up',
-        'warning': 'Keep core tight and avoid sagging hips'
+        'instructions':
+            '1. Start in plank position\n2. Lower body to ground\n3. Push back up',
+        'warning': 'Keep core tight and avoid sagging hips',
       },
       {
         'exercise_name': 'Squats',
         'target_area': 'Legs',
         'description': 'Fundamental lower body exercise',
         'equipment': 'None',
-        'instructions': '1. Stand with feet shoulder-width apart\n2. Lower as if sitting in chair\n3. Return to standing',
-        'warning': 'Keep knees aligned with toes'
+        'instructions':
+            '1. Stand with feet shoulder-width apart\n2. Lower as if sitting in chair\n3. Return to standing',
+        'warning': 'Keep knees aligned with toes',
       },
       {
         'exercise_name': 'Plank',
         'target_area': 'Core',
         'description': 'Isometric core strengthening exercise',
         'equipment': 'None',
-        'instructions': '1. Start in push-up position\n2. Hold position on forearms\n3. Keep body straight',
-        'warning': 'Avoid sagging hips or raising buttocks'
+        'instructions':
+            '1. Start in push-up position\n2. Hold position on forearms\n3. Keep body straight',
+        'warning': 'Avoid sagging hips or raising buttocks',
       },
       {
         'exercise_name': 'Pull-ups',
         'target_area': 'Back',
         'description': 'Upper body pulling exercise',
         'equipment': 'Pull-up bar',
-        'instructions': '1. Hang from bar with palms facing away\n2. Pull body up until chin over bar\n3. Lower with control',
-        'warning': 'Use full range of motion, avoid swinging'
+        'instructions':
+            '1. Hang from bar with palms facing away\n2. Pull body up until chin over bar\n3. Lower with control',
+        'warning': 'Use full range of motion, avoid swinging',
       },
     ];
     for (final exercise in defaultExercises) {
       await db.insert('exercise_library_dim', exercise);
     }
   }
-
 
   Future<int> insertUser(Map<String, dynamic> user) async {
     final dbClient = await db;
@@ -253,8 +281,10 @@ class DBHelper {
 
     user.forEach((key, value) {
       if (key == "weight" || key == "height" || key == "RHR") {
-        cleanedUser[key] = (value is num) ? value.toDouble() : double.parse(value.toString().trim());
-
+        cleanedUser[key] =
+            (value is num)
+                ? value.toDouble()
+                : double.parse(value.toString().trim());
       }
       if (key == "age" || key == "ai_avatar_id") {
         cleanedUser[key] = int.parse(value);
@@ -269,7 +299,7 @@ class DBHelper {
   Future<List<Map<String, dynamic>>> getUsers() async {
     final dbClient = await db;
     return await dbClient.query('user_dim');
-    }
+  }
 
   Future<Map<String, dynamic>?> getUserById(int id) async {
     final dbClient = await db;
@@ -311,7 +341,6 @@ class DBHelper {
     }
   }
 
-
   Future<int> insertWorkoutRoutine(WorkoutRoutine routine) async {
     try {
       final dbClient = await db;
@@ -344,14 +373,20 @@ class DBHelper {
     }
   }
 
-  Future<int> saveCompleteRoutine(WorkoutRoutine routine, List<RoutineExercise> exercises) async {
+  Future<int> saveCompleteRoutine(
+    WorkoutRoutine routine,
+    List<RoutineExercise> exercises,
+  ) async {
     try {
       final dbClient = await db;
-      
+
       return await dbClient.transaction((txn) async {
         // Insert the routine first
-        final routineId = await txn.insert('workout_routine_fact', routine.toMap());
-        
+        final routineId = await txn.insert(
+          'workout_routine_fact',
+          routine.toMap(),
+        );
+
         // Insert all exercises for this routine
         for (final exercise in exercises) {
           final exerciseWithRoutineId = RoutineExercise(
@@ -363,11 +398,16 @@ class DBHelper {
             weight: exercise.weight,
             weightUnit: exercise.weightUnit,
           );
-          
-          await txn.insert('routine_exercise_fact', exerciseWithRoutineId.toMap());
+
+          await txn.insert(
+            'routine_exercise_fact',
+            exerciseWithRoutineId.toMap(),
+          );
         }
-        
-        print('Complete routine saved with ID: $routineId and ${exercises.length} exercises');
+
+        print(
+          'Complete routine saved with ID: $routineId and ${exercises.length} exercises',
+        );
         return routineId;
       });
     } catch (e) {
@@ -385,19 +425,21 @@ class DBHelper {
         whereArgs: [userId],
         orderBy: 'created_at DESC',
       );
-      
+
       return maps.map((map) => WorkoutRoutine.fromMap(map)).toList();
     } catch (e) {
       print('Error getting workout routines: $e');
       return [];
     }
   }
-  
 
-  Future<List<RoutineExercise>> getRoutineExercisesWithDetails(int routineId) async {
+  Future<List<RoutineExercise>> getRoutineExercisesWithDetails(
+    int routineId,
+  ) async {
     try {
       final dbClient = await db;
-      final maps = await dbClient.rawQuery('''
+      final maps = await dbClient.rawQuery(
+        '''
         SELECT 
           re.*,
           COALESCE(el.exercise_name, ce.exercise_name) as exercise_name,
@@ -407,8 +449,10 @@ class DBHelper {
         LEFT JOIN user_custom_exercise_dim ce ON re.user_exercise_dim_id = ce.user_exercise_dim_id
         WHERE re.workout_routine_fact_id = ?
         ORDER BY re.routine_exercise_fact_id ASC
-      ''', [routineId]);
-      
+      ''',
+        [routineId],
+      );
+
       return maps.map((map) => RoutineExercise.fromMap(map)).toList();
     } catch (e) {
       print('Error getting routine exercises: $e');
@@ -419,7 +463,7 @@ class DBHelper {
   Future<Map<String, dynamic>?> getCompleteRoutine(int routineId) async {
     try {
       final dbClient = await db;
-      
+
       // Get routine details
       final routineMaps = await dbClient.query(
         'workout_routine_fact',
@@ -427,16 +471,13 @@ class DBHelper {
         whereArgs: [routineId],
         limit: 1,
       );
-      
+
       if (routineMaps.isEmpty) return null;
-      
+
       final routine = WorkoutRoutine.fromMap(routineMaps.first);
       final exercises = await getRoutineExercisesWithDetails(routineId);
-      
-      return {
-        'routine': routine,
-        'exercises': exercises,
-      };
+
+      return {'routine': routine, 'exercises': exercises};
     } catch (e) {
       print('Error getting complete routine: $e');
       return null;
@@ -446,7 +487,7 @@ class DBHelper {
   Future<int> deleteWorkoutRoutine(int routineId) async {
     try {
       final dbClient = await db;
-      
+
       return await dbClient.transaction((txn) async {
         // Delete all exercises first
         await txn.delete(
@@ -454,14 +495,14 @@ class DBHelper {
           where: 'workout_routine_fact_id = ?',
           whereArgs: [routineId],
         );
-        
+
         // Then delete the routine
         final rowsAffected = await txn.delete(
           'workout_routine_fact',
           where: 'workout_routine_fact_id = ?',
           whereArgs: [routineId],
         );
-        
+
         print('Routine and exercises deleted');
         return rowsAffected;
       });
@@ -470,7 +511,6 @@ class DBHelper {
       rethrow;
     }
   }
-
 
   Future<int> insertCustomExercise(CustomExercise exercise) async {
     try {
@@ -497,7 +537,7 @@ class DBHelper {
         whereArgs: [userId],
         orderBy: 'date_created DESC',
       );
-      
+
       return maps.map((map) => CustomExercise.fromMap(map)).toList();
     } catch (e) {
       print('Error getting custom exercises: $e');
@@ -514,7 +554,7 @@ class DBHelper {
         whereArgs: [exerciseId],
         limit: 1,
       );
-      
+
       if (maps.isNotEmpty) {
         return CustomExercise.fromMap(maps.first);
       }
@@ -534,13 +574,13 @@ class DBHelper {
         where: 'user_exercise_dim_id = ?',
         whereArgs: [exercise.id],
       );
-      
+
       if (rowsAffected > 0) {
         print('Custom exercise updated successfully');
       } else {
         print('No exercise found with ID: ${exercise.id}');
       }
-      
+
       return rowsAffected;
     } catch (e) {
       print('Error updating custom exercise: $e');
@@ -556,13 +596,13 @@ class DBHelper {
         where: 'user_exercise_dim_id = ?',
         whereArgs: [exerciseId],
       );
-      
+
       if (rowsAffected > 0) {
         print('Custom exercise deleted successfully');
       } else {
         print('No exercise found with ID: $exerciseId');
       }
-      
+
       return rowsAffected;
     } catch (e) {
       print('Error deleting custom exercise: $e');
@@ -570,23 +610,26 @@ class DBHelper {
     }
   }
 
-  Future<List<CustomExercise>> searchCustomExercises(int userId, String searchTerm) async {
+  Future<List<CustomExercise>> searchCustomExercises(
+    int userId,
+    String searchTerm,
+  ) async {
     try {
       final dbClient = await db;
       final maps = await dbClient.query(
         'user_custom_exercise_dim',
-        where: 'user_dim_id = ? AND (exercise_name LIKE ? OR target_area LIKE ?)',
+        where:
+            'user_dim_id = ? AND (exercise_name LIKE ? OR target_area LIKE ?)',
         whereArgs: [userId, '%$searchTerm%', '%$searchTerm%'],
         orderBy: 'exercise_name ASC',
       );
-      
+
       return maps.map((map) => CustomExercise.fromMap(map)).toList();
     } catch (e) {
       print('Error searching custom exercises: $e');
       return [];
     }
   }
-
 
   Future<List<ExerciseLibrary>> getAllLibraryExercises() async {
     try {
@@ -595,7 +638,7 @@ class DBHelper {
         'exercise_library_dim',
         orderBy: 'exercise_name ASC',
       );
-      
+
       return maps.map((map) => ExerciseLibrary.fromMap(map)).toList();
     } catch (e) {
       print('Error getting library exercises: $e');
@@ -603,7 +646,9 @@ class DBHelper {
     }
   }
 
-  Future<List<ExerciseLibrary>> getLibraryExercisesByTargetArea(String targetArea) async {
+  Future<List<ExerciseLibrary>> getLibraryExercisesByTargetArea(
+    String targetArea,
+  ) async {
     try {
       final dbClient = await db;
       final maps = await dbClient.query(
@@ -612,7 +657,7 @@ class DBHelper {
         whereArgs: [targetArea],
         orderBy: 'exercise_name ASC',
       );
-      
+
       return maps.map((map) => ExerciseLibrary.fromMap(map)).toList();
     } catch (e) {
       print('Error getting exercises by target area: $e');
@@ -620,7 +665,9 @@ class DBHelper {
     }
   }
 
-  Future<List<ExerciseLibrary>> searchLibraryExercises(String searchTerm) async {
+  Future<List<ExerciseLibrary>> searchLibraryExercises(
+    String searchTerm,
+  ) async {
     try {
       final dbClient = await db;
       final maps = await dbClient.query(
@@ -629,7 +676,7 @@ class DBHelper {
         whereArgs: ['%$searchTerm%', '%$searchTerm%'],
         orderBy: 'exercise_name ASC',
       );
-      
+
       return maps.map((map) => ExerciseLibrary.fromMap(map)).toList();
     } catch (e) {
       print('Error searching library exercises: $e');
@@ -652,16 +699,15 @@ class DBHelper {
       rethrow;
     }
   }
-  
-  
+
   Future<int> insertAIRoutineRequest(AIRoutineRequest request) async {
     final dbClient = await db;
     final now = DateTime.now().toIso8601String();
-    
+
     final requestMap = request.toMap();
     requestMap['created_at'] = now;
     requestMap['updated_at'] = now;
-    
+
     return await dbClient.insert('ai_routine_requests', requestMap);
   }
 
@@ -669,7 +715,7 @@ class DBHelper {
     final dbClient = await db;
     final requestMap = request.toMap();
     requestMap['updated_at'] = DateTime.now().toIso8601String();
-    
+
     return await dbClient.update(
       'ai_routine_requests',
       requestMap,
@@ -724,10 +770,7 @@ class DBHelper {
     final dbClient = await db;
     return await dbClient.update(
       'ai_routine_requests',
-      {
-        'status': status,
-        'updated_at': DateTime.now().toIso8601String(),
-      },
+      {'status': status, 'updated_at': DateTime.now().toIso8601String()},
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -742,6 +785,28 @@ class DBHelper {
     );
   }
 
+  Future<int> insert(
+    String table,
+    Map<String, dynamic> values, {
+    ConflictAlgorithm conflictAlgorithm = ConflictAlgorithm.replace,
+  }) async {
+    final dbClient = await db;
+    return await dbClient.insert(
+      table,
+      values,
+      conflictAlgorithm: conflictAlgorithm,
+    );
+  }
+
+  Future<void> printTable(String tableName) async {
+    final dbClient = await db;
+    final result = await dbClient.query(tableName);
+
+    print("Contents of $tableName (${result.length} rows):");
+    for (var row in result) {
+      print(row); // each row is a Map<String, dynamic>
+    }
+  }
 
   Future<int> insertWorkoutLog(WorkoutLog log) async {
     try {
@@ -759,7 +824,10 @@ class DBHelper {
     }
   }
 
-  Future<List<WorkoutLog>> getWorkoutLogsByUser(int userId, {int? limit}) async {
+  Future<List<WorkoutLog>> getWorkoutLogsByUser(
+    int userId, {
+    int? limit,
+  }) async {
     try {
       final dbClient = await db;
       final maps = await dbClient.query(
@@ -769,7 +837,7 @@ class DBHelper {
         orderBy: 'log_date DESC',
         limit: limit,
       );
-      
+
       return maps.map((map) => WorkoutLog.fromMap(map)).toList();
     } catch (e) {
       print('Error getting workout logs: $e');
@@ -782,9 +850,9 @@ class DBHelper {
   }
 
   Future<List<WorkoutLog>> getWorkoutLogsByDateRange(
-    int userId, 
-    String startDate, 
-    String endDate
+    int userId,
+    String startDate,
+    String endDate,
   ) async {
     try {
       final dbClient = await db;
@@ -794,7 +862,7 @@ class DBHelper {
         whereArgs: [userId, startDate, endDate],
         orderBy: 'log_date DESC',
       );
-      
+
       return maps.map((map) => WorkoutLog.fromMap(map)).toList();
     } catch (e) {
       print('Error getting workout logs by date range: $e');
@@ -811,13 +879,13 @@ class DBHelper {
         where: 'log_workout_fact_id = ?',
         whereArgs: [log.id],
       );
-      
+
       if (rowsAffected > 0) {
         print('Workout log updated successfully');
       } else {
         print('No workout log found with ID: ${log.id}');
       }
-      
+
       return rowsAffected;
     } catch (e) {
       print('Error updating workout log: $e');
@@ -833,13 +901,13 @@ class DBHelper {
         where: 'log_workout_fact_id = ?',
         whereArgs: [logId],
       );
-      
+
       if (rowsAffected > 0) {
         print('Workout log deleted successfully');
       } else {
         print('No workout log found with ID: $logId');
       }
-      
+
       return rowsAffected;
     } catch (e) {
       print('Error deleting workout log: $e');
@@ -856,7 +924,7 @@ class DBHelper {
         whereArgs: [logId],
         limit: 1,
       );
-      
+
       if (maps.isNotEmpty) {
         return WorkoutLog.fromMap(maps.first);
       }
@@ -877,11 +945,34 @@ class DBHelper {
         whereArgs: [userId],
         orderBy: 'workout_routine_name ASC',
       );
-      
+
       return maps;
     } catch (e) {
       print('Error getting workout routines for dropdown: $e');
       return [];
+    }
+  }
+
+  Future<void> printDayData(DateTime day) async {
+    final dbClient = await db;
+
+    // Format date string exactly the same way you store it (ISO 8601)
+    final dateString = DateTime(day.year, day.month, day.day).toIso8601String();
+
+    // Query
+    final rows = await dbClient.query(
+      'daily_activity_fact',
+      where: 'date = ?',
+      whereArgs: [dateString],
+    );
+
+    if (rows.isEmpty) {
+      print("No data found for $dateString");
+      return;
+    }
+
+    for (var row in rows) {
+      print(row);
     }
   }
 }
