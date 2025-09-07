@@ -6,6 +6,7 @@ import 'models/exercise_models.dart';
 import 'models/workout_routine.dart';
 import 'models/routine_exercise.dart';
 import 'models/ai_routine_request.dart';
+import 'models/log_routine.dart';
 
 
 class DBHelper {
@@ -40,7 +41,7 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 13,
+      version: 14,
       onCreate: (db, version) async {
         print('🔨 Creating database tables (version $version)...');
         await _createAllTables(db);
@@ -55,6 +56,9 @@ class DBHelper {
         if (oldVersion < 13) {
           await db.execute('DROP TABLE IF EXISTS ai_routine_requests');
           await _createWorkoutTables(db);
+        }
+        if (oldVersion < 14) {
+          await _createLogWorkoutTable(db);
         }
       },
       onOpen: (db) async {
@@ -126,8 +130,8 @@ class DBHelper {
       )
     ''');
 
-    // Create workout tables
     await _createWorkoutTables(db);
+    await _createLogWorkoutTable(db);
   }
 
   // Create workout-related tables
@@ -184,6 +188,22 @@ class DBHelper {
   ''');
 }
 
+// Create log routine table for tracking actual workout performances
+  Future<void> _createLogWorkoutTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS log_workout_fact (
+        log_workout_fact_id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
+        workout_routine_fact_id INTEGER NOT NULL,
+        user_dim_id INTEGER NOT NULL,
+        log_date TEXT NOT NULL,
+        log_duration INTEGER NOT NULL,
+        calories_burned REAL,
+        routine_name TEXT NOT NULL,
+        FOREIGN KEY (workout_routine_fact_id) REFERENCES workout_routine_fact(workout_routine_fact_id),
+        FOREIGN KEY (user_dim_id) REFERENCES user_dim(user_dim_id)
+      )
+    ''');
+  }
   // Insert default exercises into the library
   Future<void> _insertDefaultExercises(Database db) async {
     final defaultExercises = [
@@ -372,6 +392,7 @@ class DBHelper {
       return [];
     }
   }
+  
 
   Future<List<RoutineExercise>> getRoutineExercisesWithDetails(int routineId) async {
     try {
@@ -721,4 +742,146 @@ class DBHelper {
     );
   }
 
+
+  Future<int> insertWorkoutLog(WorkoutLog log) async {
+    try {
+      final dbClient = await db;
+      final id = await dbClient.insert(
+        'log_workout_fact',
+        log.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      print('Workout log created with ID: $id');
+      return id;
+    } catch (e) {
+      print('Error inserting workout log: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<WorkoutLog>> getWorkoutLogsByUser(int userId, {int? limit}) async {
+    try {
+      final dbClient = await db;
+      final maps = await dbClient.query(
+        'log_workout_fact',
+        where: 'user_dim_id = ?',
+        whereArgs: [userId],
+        orderBy: 'log_date DESC',
+        limit: limit,
+      );
+      
+      return maps.map((map) => WorkoutLog.fromMap(map)).toList();
+    } catch (e) {
+      print('Error getting workout logs: $e');
+      return [];
+    }
+  }
+
+  Future<List<WorkoutLog>> getRecentWorkoutHistory(int userId) async {
+    return await getWorkoutLogsByUser(userId, limit: 10);
+  }
+
+  Future<List<WorkoutLog>> getWorkoutLogsByDateRange(
+    int userId, 
+    String startDate, 
+    String endDate
+  ) async {
+    try {
+      final dbClient = await db;
+      final maps = await dbClient.query(
+        'log_workout_fact',
+        where: 'user_dim_id = ? AND log_date BETWEEN ? AND ?',
+        whereArgs: [userId, startDate, endDate],
+        orderBy: 'log_date DESC',
+      );
+      
+      return maps.map((map) => WorkoutLog.fromMap(map)).toList();
+    } catch (e) {
+      print('Error getting workout logs by date range: $e');
+      return [];
+    }
+  }
+
+  Future<int> updateWorkoutLog(WorkoutLog log) async {
+    try {
+      final dbClient = await db;
+      final rowsAffected = await dbClient.update(
+        'log_workout_fact',
+        log.toMap(),
+        where: 'log_workout_fact_id = ?',
+        whereArgs: [log.id],
+      );
+      
+      if (rowsAffected > 0) {
+        print('Workout log updated successfully');
+      } else {
+        print('No workout log found with ID: ${log.id}');
+      }
+      
+      return rowsAffected;
+    } catch (e) {
+      print('Error updating workout log: $e');
+      rethrow;
+    }
+  }
+
+  Future<int> deleteWorkoutLog(int logId) async {
+    try {
+      final dbClient = await db;
+      final rowsAffected = await dbClient.delete(
+        'log_workout_fact',
+        where: 'log_workout_fact_id = ?',
+        whereArgs: [logId],
+      );
+      
+      if (rowsAffected > 0) {
+        print('Workout log deleted successfully');
+      } else {
+        print('No workout log found with ID: $logId');
+      }
+      
+      return rowsAffected;
+    } catch (e) {
+      print('Error deleting workout log: $e');
+      rethrow;
+    }
+  }
+
+  Future<WorkoutLog?> getWorkoutLogById(int logId) async {
+    try {
+      final dbClient = await db;
+      final maps = await dbClient.query(
+        'log_workout_fact',
+        where: 'log_workout_fact_id = ?',
+        whereArgs: [logId],
+        limit: 1,
+      );
+      
+      if (maps.isNotEmpty) {
+        return WorkoutLog.fromMap(maps.first);
+      }
+      return null;
+    } catch (e) {
+      print('Error getting workout log by ID: $e');
+      return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getRoutinesForDropdown(int userId) async {
+    try {
+      final dbClient = await db;
+      final maps = await dbClient.query(
+        'workout_routine_fact',
+        columns: ['workout_routine_fact_id', 'workout_routine_name'],
+        where: 'user_dim_id = ?',
+        whereArgs: [userId],
+        orderBy: 'workout_routine_name ASC',
+      );
+      
+      return maps;
+    } catch (e) {
+      print('Error getting workout routines for dropdown: $e');
+      return [];
+    }
+  }
 }

@@ -1,11 +1,11 @@
-
-
 import 'package:flutter/material.dart';
-
-import 'log_activity.dart';
+import 'package:mhealthapp/db_helper.dart';
+import 'package:mhealthapp/models/log_routine.dart';
 
 class CaloriesBurnedPopup extends StatefulWidget {
-  const CaloriesBurnedPopup({super.key});
+  final Map<String, dynamic> workoutData;
+  
+  const CaloriesBurnedPopup({super.key, required this.workoutData});
 
   @override
   State<CaloriesBurnedPopup> createState() => _CaloriesBurnedPopupState();
@@ -13,6 +13,8 @@ class CaloriesBurnedPopup extends StatefulWidget {
 
 class _CaloriesBurnedPopupState extends State<CaloriesBurnedPopup> {
   final TextEditingController caloriesController = TextEditingController();
+  final DBHelper _dbHelper = DBHelper();
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -67,29 +69,97 @@ class _CaloriesBurnedPopupState extends State<CaloriesBurnedPopup> {
               style: TextStyle(fontSize: 12),
             ),
             const SizedBox(height: 24),
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).popUntil((route) => route.isFirst);  // Pop all popups
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => LogActivityPage()),
-                  );
-                },
+                onPressed: _isLoading ? null : _saveWorkout,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF6B578C),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   minimumSize: Size.fromHeight(48),
                 ),
-                child: Text("Done"),
+                child: _isLoading 
+                  ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Text("Save Workout"),
               ),
             ),
-
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _saveWorkout() async {
+    setState(() => _isLoading = true);
+
+    try {
+      // Parse calories if entered
+      double? calories;
+      if (caloriesController.text.trim().isNotEmpty) {
+        calories = double.tryParse(caloriesController.text.trim());
+        if (calories == null || calories < 0) {
+          _showErrorMessage('Please enter a valid number for calories');
+          setState(() => _isLoading = false);
+          return;
+        }
+      }
+
+      // Create the workout log
+      final workoutLog = WorkoutLog(
+        workoutRoutineFactId: widget.workoutData['workoutRoutineFactId'],
+        userDimId: widget.workoutData['userId'],
+        logDate: widget.workoutData['date'],
+        logDuration: widget.workoutData['durationMinutes'] ?? 0,
+        routineName: widget.workoutData['routineName'],
+        caloriesBurned: calories,
+      );
+
+      // Save to database
+      await _dbHelper.insertWorkoutLog(workoutLog);
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Workout logged successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.of(context).pop(true);
+      }
+    } catch (e) {
+      _showErrorMessage('Failed to save workout. Please try again.');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showErrorMessage(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    caloriesController.dispose();
+    super.dispose();
   }
 }

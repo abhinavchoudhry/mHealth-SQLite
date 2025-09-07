@@ -116,11 +116,16 @@ class ExercisePage extends StatelessWidget {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LogActivityPage()),
-                );
+              onPressed: () async {
+                if (await NavigationHelper.ensureUserLoggedIn(context)) {
+                  final userId = await NavigationHelper.getCurrentUserId();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LogActivityPage(userId: userId!),
+                    ),
+                  );
+                }
               },
 
               style: ElevatedButton.styleFrom(

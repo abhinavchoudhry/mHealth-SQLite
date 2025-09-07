@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mhealthapp/screens/exercise_lib/exercise%20pages/create_custom_exercise_step1.dart';
+//import 'package:mhealthapp/screens/exercise_lib/exercise%20pages/create_custom_exercise_step1.dart';
 import 'screens/home_page.dart';
 import 'screens/auth/welcome_pg.dart';
 import 'screens/auth/login.dart';
@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      initialRoute: '/welcome',
+      initialRoute: '/exercise',
       routes: {
         '/welcome': (context) => const WelcomePage(),
         '/home': (context) => HomePage(),
@@ -63,14 +63,6 @@ class MyApp extends StatelessWidget {
           );
         }
 
-        if (settings.name == '/create_custom_exercise') {
-          final args = settings.arguments as Map<String, dynamic>?;
-          final userId = args?['userId'] ?? 1;
-          return MaterialPageRoute(
-            builder: (context) => CreateCustomExerciseStep1(userId: userId),
-          );
-        }
-
         return null;
       },
 
@@ -84,7 +76,6 @@ class NavigationHelper {
     final prefs = await SharedPreferences.getInstance();
     final userEmail = prefs.getString('logged_in_user_email');
     
-    // If no user is logged in, return default
     if (userEmail == null || userEmail.isEmpty) {
       return null;
     }
@@ -129,7 +120,6 @@ class NavigationHelper {
       );
       return false;
     }
-    
     return true;
   }
 

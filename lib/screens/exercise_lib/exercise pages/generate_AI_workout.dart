@@ -20,7 +20,7 @@ class _GenerateAIRoutinePopupState extends State<GenerateAIRoutinePopup> {
   final TextEditingController durationController = TextEditingController();
   String? selectedIntensity;
 
-    final Map<String, bool> targetAreas = {
+  final Map<String, bool> targetAreas = {
     'Arms': false,
     'Back': false,
     'Legs': false,
