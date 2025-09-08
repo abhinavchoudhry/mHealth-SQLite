@@ -154,7 +154,6 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
                   IconButton(
                     icon: const Icon(Icons.close, size: 28),
                     onPressed: () {
-                      print('🔧 Close button pressed');
                       Navigator.pop(context);
                     },
                   ),
@@ -293,7 +292,6 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
 
   Widget _buildExerciseDropdown() {
     if (allExercises.isEmpty) {
-      print('⚠️ No exercises to display in dropdown');
       return const Text('No exercises available');
     }
 
@@ -333,7 +331,6 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
             ),
           );
         } catch (e) {
-          print('⚠️ Error creating dropdown item $i: $e');
           continue;
         }
       }
@@ -373,8 +370,6 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
       );
       
     } catch (e, stackTrace) {
-      print('⚠️ Error building dropdown: $e');
-      print('📍 Stack trace: $stackTrace');
       return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(

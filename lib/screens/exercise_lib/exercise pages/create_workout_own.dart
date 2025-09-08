@@ -2,6 +2,7 @@ import 'package:mhealthapp/db_helper.dart';
 import 'package:mhealthapp/models/routine_exercise.dart';
 import 'package:mhealthapp/models/workout_routine.dart';
 import 'package:mhealthapp/screens/exercise_lib/exercise_lib.dart';
+import 'package:mhealthapp/screens/home_page.dart';
 import 'create_workout_own_popup.dart';
 import 'package:flutter/material.dart';
 
@@ -243,24 +244,60 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
           
           // Loading overlay
           if (isLoading)
-            Container(
-              color: Colors.black.withOpacity(0.3),
-              child: const Center(
-                child: Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 16),
-                        Text('Saving routine...'),
-                      ],
-                    ),
+          Container(
+            color: Colors.black.withOpacity(0.3),
+            child: const Center(
+              child: Card(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Saving routine...'),
+                    ],
                   ),
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+            // Bottom Navigation Bar
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFF6B578C),
+        unselectedItemColor: Colors.grey,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        currentIndex: 2,
+        onTap: (index) {
+          if (index == 2) return; // Already on Exercise page
+          
+          if (index == 0) {
+            // Navigate to HomePage
+            Navigator.push(
+              context, 
+              MaterialPageRoute(builder: (context) => HomePage())
+            );
+          };
+          // Navigate to ChatPage
+          // else if (index == 1) {
+          // }
+          // Navigate to ActivityPage 
+          // else if (index == 3) {
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => ())
+          //   );
+          // }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
+          BottomNavigationBarItem(icon: Icon(Icons.format_list_bulleted), label: 'Exercise'),
+          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Activity'),
         ],
       ),
     );

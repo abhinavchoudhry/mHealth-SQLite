@@ -52,15 +52,23 @@ class ExerciseRoutinePage extends StatelessWidget {
         showUnselectedLabels: true,
         currentIndex: 2, // Current index is 'Exercise'
         onTap: (index) {
+          if (index == 2) return;
           if (index == 0) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => HomePage()),
             );
-          } else if (index == 2) {
-            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
           }
-          // You can add logic for index == 1 (Chat) and index == 3 (Activity) later if needed
+          // Navigate to ChatPage
+          // else if (index == 1) {
+          // }
+          // Navigate to ActivityPage 
+          // else if (index == 3) {
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => ())
+          //   );
+          // }
         },
         items: const [
           BottomNavigationBarItem(

@@ -149,17 +149,24 @@ class ExercisePage extends StatelessWidget {
         showUnselectedLabels: true,
         currentIndex: 2, // or 0 for HomePage, or correct index for this page
         onTap: (index) {
-          if (index == 2) {
-            // Navigate to HomePage
-            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-          } else if (index == 0) {
-            // Navigate to ChallengesPage
+          if (index == 2) return;
+          // Navigate to HomePage
+          if (index == 0) {
             Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HomePage()),
+              context, 
+              MaterialPageRoute(builder: (context) => HomePage())
             );
           }
-          // Optional: handle Chat (index == 1), Exercise (index == 2)
+          // Navigate to ChatPage
+          // else if (index == 1) {
+          // }
+          // Navigate to ActivityPage 
+          // else if (index == 3) {
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => ())
+          //   );
+          // }
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),

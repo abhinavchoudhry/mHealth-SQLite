@@ -1,6 +1,7 @@
 // import 'package:exercises_pages/exercise_routine_ai.dart';
 import 'package:mhealthapp/db_helper.dart';
 import 'package:mhealthapp/models/ai_routine_request.dart';
+import 'package:mhealthapp/screens/home_page.dart';
 
 import 'loading_plan_popup.dart';
 import 'package:flutter/material.dart';
@@ -204,6 +205,26 @@ class _AdditionalCommentsPopupState extends State<AdditionalCommentsPopup> {
         showSelectedLabels: true,
         showUnselectedLabels: true,
         currentIndex: 2,
+        onTap: (index) {
+          if (index == 2) return;
+          // Navigate to HomePage
+          if (index == 0) {
+            Navigator.push(
+              context, 
+              MaterialPageRoute(builder: (context) => HomePage())
+            );
+          }
+          // Navigate to ChatPage
+          // else if (index == 1) {
+          // }
+          // Navigate to ActivityPage 
+          // else if (index == 3) {
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => ())
+          //   );
+          // }
+        },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),

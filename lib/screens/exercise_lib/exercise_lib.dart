@@ -45,7 +45,6 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading user data: $e');
       setState(() {
         _isLoading = false;
       });
@@ -205,11 +204,24 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
         showUnselectedLabels: true,
         currentIndex: 2,
         onTap: (index) {
-          if (index == 2) {
-            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-          } else if (index == 0) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()),);
+          if (index == 2) return;
+          // Navigate to HomePage
+          if (index == 0) {
+            Navigator.push(
+              context, 
+              MaterialPageRoute(builder: (context) => HomePage())
+            );
           }
+          // Navigate to ChatPage
+          // else if (index == 1) {
+          // }
+          // Navigate to ActivityPage 
+          // else if (index == 3) {
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => ())
+          //   );
+          // }
         },
         items: const [
           BottomNavigationBarItem(

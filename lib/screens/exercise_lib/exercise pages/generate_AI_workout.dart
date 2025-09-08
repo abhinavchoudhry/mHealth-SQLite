@@ -235,6 +235,26 @@ class _GenerateAIRoutinePopupState extends State<GenerateAIRoutinePopup> {
         showSelectedLabels: true,
         showUnselectedLabels: true,
         currentIndex: 2,
+        onTap: (index) {
+          if (index == 2) return;
+          // Navigate to HomePage
+          if (index == 0) {
+            Navigator.push(
+              context, 
+              MaterialPageRoute(builder: (context) => HomePage())
+            );
+          }
+          // Navigate to ChatPage
+          // else if (index == 1) {
+          // }
+          // Navigate to ActivityPage 
+          // else if (index == 3) {
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => ())
+          //   );
+          // }
+        },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
