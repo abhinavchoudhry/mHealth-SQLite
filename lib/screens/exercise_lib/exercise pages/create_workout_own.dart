@@ -1,6 +1,7 @@
 import 'package:mhealthapp/db_helper.dart';
 import 'package:mhealthapp/models/routine_exercise.dart';
 import 'package:mhealthapp/models/workout_routine.dart';
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
 import 'package:mhealthapp/screens/exercise_lib/exercise_lib.dart';
 import 'package:mhealthapp/screens/home_page.dart';
 import 'create_workout_own_popup.dart';
@@ -9,10 +10,7 @@ import 'package:flutter/material.dart';
 class BuildRoutinePage extends StatefulWidget {
   final int userId;
 
-  const BuildRoutinePage({
-    super.key,
-    required this.userId,
-  });
+  const BuildRoutinePage({super.key, required this.userId});
 
   @override
   State<BuildRoutinePage> createState() => _BuildRoutinePageState();
@@ -47,10 +45,7 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
 
                 const Text(
                   'Build Your Own Workout Routine',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 const Text(
@@ -65,7 +60,9 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
                   decoration: InputDecoration(
                     hintText: 'Name your routine',
                     hintStyle: const TextStyle(
-                        color: Color(0xFF6B578C), fontWeight: FontWeight.w500),
+                      color: Color(0xFF6B578C),
+                      fontWeight: FontWeight.w500,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderSide: const BorderSide(color: Color(0xFF6B578C)),
                       borderRadius: BorderRadius.circular(8),
@@ -114,7 +111,10 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
                           children: [
                             Text(
                               'Selected Exercises (${selectedExercises.length})',
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             TextButton.icon(
                               onPressed: _clearAllExercises,
@@ -140,21 +140,32 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
                                     backgroundColor: const Color(0xFF6B578C),
                                     child: Text(
                                       '${index + 1}',
-                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                   title: Text(
                                     exercise.exerciseName ?? 'Unknown Exercise',
-                                    style: const TextStyle(fontWeight: FontWeight.w600),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                   subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text('Target: ${exercise.targetArea ?? 'N/A'}'),
+                                      Text(
+                                        'Target: ${exercise.targetArea ?? 'N/A'}',
+                                      ),
                                       Text(
                                         '${exercise.sets} sets × ${exercise.repetitions} reps'
                                         '${exercise.weight > 0 ? ' × ${exercise.weight} ${exercise.weightUnit}' : ''}',
-                                        style: const TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF6B578C)),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF6B578C),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -167,7 +178,10 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
                                       //   tooltip: 'Edit Exercise',
                                       // ),
                                       IconButton(
-                                        icon: const Icon(Icons.delete, color: Colors.red),
+                                        icon: const Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                        ),
                                         onPressed: () => _removeExercise(index),
                                         tooltip: 'Remove Exercise',
                                       ),
@@ -218,14 +232,20 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: isLoading ? null : _saveRoutine,
-                      icon: isLoading 
-                          ? const SizedBox(
-                              width: 16, 
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                            )
-                          : const Icon(Icons.save),
-                      label: Text(isLoading ? 'Saving Routine...' : 'Save Routine'),
+                      icon:
+                          isLoading
+                              ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : const Icon(Icons.save),
+                      label: Text(
+                        isLoading ? 'Saving Routine...' : 'Save Routine',
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6B578C),
                         foregroundColor: Colors.white,
@@ -241,30 +261,30 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
               ],
             ),
           ),
-          
+
           // Loading overlay
           if (isLoading)
-          Container(
-            color: Colors.black.withOpacity(0.3),
-            child: const Center(
-              child: Card(
-                child: Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text('Saving routine...'),
-                    ],
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('Saving routine...'),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
-            // Bottom Navigation Bar
+      // Bottom Navigation Bar
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF6B578C),
@@ -274,30 +294,39 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
         currentIndex: 2,
         onTap: (index) {
           if (index == 2) return; // Already on Exercise page
-          
+
           if (index == 0) {
             // Navigate to HomePage
             Navigator.push(
-              context, 
-              MaterialPageRoute(builder: (context) => HomePage())
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
             );
-          };
+          }
           // Navigate to ChatPage
           // else if (index == 1) {
           // }
-          // Navigate to ActivityPage 
-          // else if (index == 3) {
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => ())
-          //   );
-          // }
+          // Navigate to ActivityPage
+          else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
+            );
+          }
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
-          BottomNavigationBarItem(icon: Icon(Icons.format_list_bulleted), label: 'Exercise'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Activity'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.format_list_bulleted),
+            label: 'Exercise',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Activity',
+          ),
         ],
       ),
     );
@@ -325,7 +354,7 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
         setState(() {
           selectedExercises.add(result);
         });
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -358,11 +387,11 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
   // Remove an exercise from the routine
   void _removeExercise(int index) {
     final exerciseName = selectedExercises[index].exerciseName;
-    
+
     setState(() {
       selectedExercises.removeAt(index);
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('❌ Removed "$exerciseName" from routine'),
@@ -375,29 +404,32 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
   void _clearAllExercises() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear All Exercises'),
-        content: Text('Are you sure you want to remove all ${selectedExercises.length} exercises from this routine?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Clear All Exercises'),
+            content: Text(
+              'Are you sure you want to remove all ${selectedExercises.length} exercises from this routine?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    selectedExercises.clear();
+                  });
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('All exercises cleared')),
+                  );
+                },
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Clear All'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                selectedExercises.clear();
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('All exercises cleared')),
-              );
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Clear All'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -433,15 +465,20 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
         workoutRoutineName: routineNameController.text.trim(),
         createdAt: DateTime.now().toIso8601String(),
       );
-      
+
       // Save the complete routine with all exercises
-      final routineId = await dbHelper.saveCompleteRoutine(routine, selectedExercises);
+      final routineId = await dbHelper.saveCompleteRoutine(
+        routine,
+        selectedExercises,
+      );
 
       if (mounted) {
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('✅ Routine "${routine.workoutRoutineName}" saved successfully!'),
+            content: Text(
+              '✅ Routine "${routine.workoutRoutineName}" saved successfully!',
+            ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 3),
           ),
@@ -450,11 +487,12 @@ class _BuildRoutinePageState extends State<BuildRoutinePage> {
         // Navigate back to previous screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => ExerciseLibraryPage(userId: widget.userId)),
+          MaterialPageRoute(
+            builder: (context) => ExerciseLibraryPage(userId: widget.userId),
+          ),
         );
       }
-
-    } catch (e) {  
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

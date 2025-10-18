@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mhealthapp/db_helper.dart';
 import 'package:mhealthapp/models/log_routine.dart';
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
 import '../../Settings/settings_1.dart';
 import '../../challenges.dart';
 import 'log_workout_popup.dart';
@@ -182,6 +183,11 @@ class _LogActivityPageState extends State<LogActivityPage> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ExercisePage()),
+            );
+          } else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
             );
           }
           // Navigate to ChatPage

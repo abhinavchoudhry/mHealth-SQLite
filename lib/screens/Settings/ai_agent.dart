@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mhealthapp/db_helper.dart';
 import '../exercise.dart';
@@ -105,6 +106,12 @@ class _AIAgentPageState extends State<AIAgentPage> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ExercisePage()),
+            );
+          } else if (index == 3) {
+            // Navigate to ChallengesPage
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
             );
           }
           // Optional: handle Chat (index == 1), Exercise (index == 2)

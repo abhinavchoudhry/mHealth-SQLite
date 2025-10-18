@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:mhealthapp/db_helper.dart';
 import 'package:mhealthapp/main.dart';
-import 'package:mhealthapp/models/exercise_models.dart';
+import 'package:mhealthapp/models/custom_exercise.dart';
 import 'package:mhealthapp/models/workout_routine.dart';
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
 import '../Settings/settings_1.dart';
 import '../challenges.dart';
 import '/screens/home_page.dart';
+import 'exercise pages/create_custom_exercise.dart';
 
 class ExerciseLibraryPage extends StatefulWidget {
   final int userId;
 
-  const ExerciseLibraryPage({
-    super.key,
-    required this.userId,
-  });
+  const ExerciseLibraryPage({super.key, required this.userId});
 
   @override
   State<ExerciseLibraryPage> createState() => _ExerciseLibraryPageState();
@@ -21,9 +20,40 @@ class ExerciseLibraryPage extends StatefulWidget {
 
 class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
   final DBHelper _dbHelper = DBHelper();
+  final TextEditingController _searchController =
+      TextEditingController(); //SEARCH BAR RELATED
+
   List<WorkoutRoutine> _userRoutines = [];
   List<CustomExercise> _userExercises = [];
   bool _isLoading = true;
+
+  // Predefined mapping of exercise names to routes -----------SEARCH BAR
+  final Map<String, String> _exerciseRoutes = {
+    "arms": "/arms",
+    "legs": "/legs",
+    "shoulders": "/shoulders",
+    "back": "/back",
+    "abdomen": "/abdomen",
+    "chest": "/chest",
+    "stretches": "/stretches",
+    "yoga": "/yoga",
+  };
+
+  // FUNCTION DEFINITION -------SEARCH BAR
+  void _searchExercise(BuildContext context) {
+    final query = _searchController.text.trim().toLowerCase();
+
+    if (_exerciseRoutes.containsKey(query)) {
+      Navigator.pushNamed(context, _exerciseRoutes[query]!);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Exercise not found"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -35,10 +65,10 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
     try {
       // Load user's workout routines
       final routines = await _dbHelper.getWorkoutRoutinesByUser(widget.userId);
-      
+
       // Load user's custom exercises
       final exercises = await _dbHelper.getCustomExercisesByUser(widget.userId);
-      
+
       setState(() {
         _userRoutines = routines;
         _userExercises = exercises;
@@ -63,7 +93,12 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
           children: [
             IconButton(
               icon: Icon(Icons.emoji_events_outlined, color: Colors.black),
-              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => ChallengesPage()),);},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChallengesPage()),
+                );
+              },
             ),
             Expanded(
               child: Row(
@@ -76,126 +111,197 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
             ),
             IconButton(
               icon: Icon(Icons.settings, color: Colors.deepPurple),
-              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              },
             ),
           ],
         ),
       ),
-      body: _isLoading 
-        ? Center(child: CircularProgressIndicator())
-        : Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.black),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  sectionTitle("Workout Routines"),
-                  SizedBox(height: 8),
-                  _buildRoutineGroup(),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: _userRoutines.isNotEmpty ? () {
-                        // Navigate to view all routines page
-                        _showAllRoutines();
-                      } : null,
-                      child: Text(
-                        "View all >", 
-                        style: TextStyle(
-                          color: _userRoutines.isNotEmpty ? Colors.deepPurple : Colors.grey
-                        )
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  sectionTitle("Your Exercises"),
-                  SizedBox(height: 8),
-                  // Row(
-                  //   children: [
-                  //     // Create Custom Exercise Button
-                  //     Expanded(
-                  //       child: ElevatedButton.icon(
-                  //         onPressed: () {
-                  //           // Navigate to custom exercise creation
-                  //           NavigationHelper.navigateToCreateCustomExercise(context);
-                  //         },
-                  //         icon: const Icon(Icons.add_circle_outline, size: 20),
-                  //         label: const Text('Create Custom Exercise'),
-                  //         style: ElevatedButton.styleFrom(
-                  //           backgroundColor: const Color(0xFF6B578C),
-                  //           foregroundColor: Colors.white,
-                  //           shape: RoundedRectangleBorder(
-                  //             borderRadius: BorderRadius.circular(8),
-                  //           ),
-                  //           minimumSize: const Size.fromHeight(44),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //     const SizedBox(width: 8),
-                  //   ],
-                  // ),
-                  // SizedBox(height: 12),
-                  _buildCustomExercisesSection(),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: _userExercises.isNotEmpty ? () {
-                        // Navigate to view all custom exercises page
-                        _showAllCustomExercises();
-                      } : null,
-                      child: Text(
-                        "View all >", 
-                        style: TextStyle(
-                          color: _userExercises.isNotEmpty ? Colors.deepPurple : Colors.grey
-                        )
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  sectionTitle("Pre-Defined Exercises"),
-                  SizedBox(height: 12),
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 2,
+      body:
+          _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildExerciseButton("Arms", () {
-                        Navigator.pushNamed(context, '/arms');
-                      }),
-                      _buildExerciseButton("Legs", () {
-                        Navigator.pushNamed(context, '/legs');
-                      }),
-                      _buildExerciseButton("Shoulders", () {
-                        Navigator.pushNamed(context, '/shoulders');
-                      }),
-                      _buildExerciseButton("Back", () {
-                        Navigator.pushNamed(context, '/back');
-                      }),
-                      _buildExerciseButton("Abdomen", () {
-                        Navigator.pushNamed(context, '/abdomen');
-                      }),
-                      _buildExerciseButton("Chest", () {
-                        Navigator.pushNamed(context, '/chest');
-                      }),
-                      _buildExerciseButton("Stretches", () {
-                        Navigator.pushNamed(context, '/stretches');
-                      }),
-                      _buildExerciseButton("Yoga", () {
-                        Navigator.pushNamed(context, '/yoga');
-                      }),
+                      IconButton(
+                        icon: Icon(Icons.arrow_back, color: Colors.black),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+
+                      // ----------------------------SEARCH BAR HERE
+                      TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: "Search exercises...",
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            color: Colors.deepPurple,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: const Icon(
+                              Icons.arrow_forward,
+                              color: Colors.deepPurple,
+                            ),
+                            onPressed: () => _searchExercise(context),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onSubmitted: (_) => _searchExercise(context),
+                      ),
+
+                      //----- SEARCH BAR ENDS
+                      sectionTitle("Workout Routines"),
+                      SizedBox(height: 8),
+                      _buildRoutineGroup(),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed:
+                              _userRoutines.isNotEmpty
+                                  ? () {
+                                    // Navigate to view all routines page
+                                    _showAllRoutines();
+                                  }
+                                  : null,
+                          child: Text(
+                            "View all >",
+                            style: TextStyle(
+                              color:
+                                  _userRoutines.isNotEmpty
+                                      ? Colors.deepPurple
+                                      : Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      sectionTitle("Your Exercises"),
+                      SizedBox(height: 8),
+
+                      // New button to navigate to Create Custom Exercise Page
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepPurple,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => CreateCustomExercisePage(
+                                      userId: widget.userId,
+                                    ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.add),
+                          label: const Text("Create Custom Exercise"),
+                        ),
+                      ),
+                      /*Row(
+                     children: [
+                       // Create Custom Exercise Button
+                       Expanded(
+                         child: ElevatedButton.icon(
+                           onPressed: () {
+                             // Navigate to custom exercise creation
+                             NavigationHelper.navigateToCreateCustomExercise(context);
+                           },
+                           icon: const Icon(Icons.add_circle_outline, size: 20),
+                           label: const Text('Create Custom Exercise'),
+                           style: ElevatedButton.styleFrom(
+                             backgroundColor: const Color(0xFF6B578C),
+                             foregroundColor: Colors.white,
+                             shape: RoundedRectangleBorder(
+                               borderRadius: BorderRadius.circular(8),
+                             ),
+                             minimumSize: const Size.fromHeight(44),
+                           ),
+                         ),
+                       ),
+                       const SizedBox(width: 8),
+                     ],
+                   ),
+                   SizedBox(height: 12),*/
+                      _buildCustomExercisesSection(),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed:
+                              _userExercises.isNotEmpty
+                                  ? () {
+                                    // Navigate to view all custom exercises page
+                                    _showAllCustomExercises();
+                                  }
+                                  : null,
+                          child: Text(
+                            "View all >",
+                            style: TextStyle(
+                              color:
+                                  _userExercises.isNotEmpty
+                                      ? Colors.deepPurple
+                                      : Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      sectionTitle("Pre-Defined Exercises"),
+                      SizedBox(height: 12),
+                      GridView.count(
+                        crossAxisCount: 2,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 2,
+                        children: [
+                          _buildExerciseButton("Arms", () {
+                            Navigator.pushNamed(context, '/arms');
+                          }),
+                          _buildExerciseButton("Legs", () {
+                            Navigator.pushNamed(context, '/legs');
+                          }),
+                          _buildExerciseButton("Shoulders", () {
+                            Navigator.pushNamed(context, '/shoulders');
+                          }),
+                          _buildExerciseButton("Back", () {
+                            Navigator.pushNamed(context, '/back');
+                          }),
+                          _buildExerciseButton("Abdomen", () {
+                            Navigator.pushNamed(context, '/abdomen');
+                          }),
+                          _buildExerciseButton("Chest", () {
+                            Navigator.pushNamed(context, '/chest');
+                          }),
+                          _buildExerciseButton("Stretches", () {
+                            Navigator.pushNamed(context, '/stretches');
+                          }),
+                          _buildExerciseButton("Yoga", () {
+                            Navigator.pushNamed(context, '/yoga');
+                          }),
+                        ],
+                      ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.deepPurple,
@@ -208,26 +314,23 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
           // Navigate to HomePage
           if (index == 0) {
             Navigator.push(
-              context, 
-              MaterialPageRoute(builder: (context) => HomePage())
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
             );
           }
           // Navigate to ChatPage
           // else if (index == 1) {
           // }
-          // Navigate to ActivityPage 
-          // else if (index == 3) {
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => ())
-          //   );
-          // }
+          // Navigate to ActivityPage
+          else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
+            );
+          }
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             label: 'Chat',
@@ -245,10 +348,8 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
     );
   }
 
-  Widget sectionTitle(String title) => Text(
-    title,
-    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-  );
+  Widget sectionTitle(String title) =>
+      Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold));
 
   Widget _buildRoutineGroup() {
     if (_userRoutines.isEmpty) {
@@ -265,10 +366,7 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
             Expanded(
               child: Text(
                 'No workout routines yet. Create your first routine!',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
               ),
             ),
           ],
@@ -278,24 +376,25 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
 
     // Show first 3 routines
     final displayRoutines = _userRoutines.take(3).toList();
-    
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.deepPurple,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
-        children: displayRoutines.asMap().entries.map((entry) {
-          final index = entry.key;
-          final routine = entry.value;
-          
-          return Column(
-            children: [
-              if (index > 0) Divider(height: 1, color: Colors.white),
-              _buildInnerRoutineTile(routine),
-            ],
-          );
-        }).toList(),
+        children:
+            displayRoutines.asMap().entries.map((entry) {
+              final index = entry.key;
+              final routine = entry.value;
+
+              return Column(
+                children: [
+                  if (index > 0) Divider(height: 1, color: Colors.white),
+                  _buildInnerRoutineTile(routine),
+                ],
+              );
+            }).toList(),
       ),
     );
   }
@@ -314,7 +413,7 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
                   Text(
                     routine.workoutRoutineName,
                     style: TextStyle(
-                      color: Colors.white, 
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -322,10 +421,7 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
                   SizedBox(height: 4),
                   Text(
                     'Created ${_formatDate(routine.createdAt)}',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ],
               ),
@@ -352,10 +448,7 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
             Expanded(
               child: Text(
                 'No custom exercises yet. Create your own exercises!',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
               ),
             ),
           ],
@@ -365,15 +458,26 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
 
     // Show first 3 custom exercises
     final displayExercises = _userExercises.take(3).toList();
-    
+
     return Column(
-      children: displayExercises.map((exercise) => 
-        _buildExerciseTile(exercise.exerciseName, exercise.targetArea, exercise)
-      ).toList(),
+      children:
+          displayExercises
+              .map(
+                (exercise) => _buildExerciseTile(
+                  exercise.exerciseName,
+                  exercise.targetArea.join('; '),
+                  exercise,
+                ),
+              )
+              .toList(),
     );
   }
 
-  Widget _buildExerciseTile(String name, String category, [CustomExercise? exercise]) {
+  Widget _buildExerciseTile(
+    String name,
+    String category, [
+    CustomExercise? exercise,
+  ]) {
     return InkWell(
       onTap: exercise != null ? () => _viewExerciseDetails(exercise) : null,
       child: Container(
@@ -388,7 +492,7 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
           children: [
             Expanded(
               child: Text(
-                name, 
+                name,
                 style: TextStyle(color: Colors.black, fontSize: 16),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -400,7 +504,7 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                category, 
+                category,
                 style: TextStyle(color: Colors.white, fontSize: 12),
               ),
             ),
@@ -428,7 +532,7 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
       final date = DateTime.parse(dateString);
       final now = DateTime.now();
       final difference = now.difference(date);
-      
+
       if (difference.inDays == 0) {
         return 'Today';
       } else if (difference.inDays == 1) {
@@ -451,7 +555,6 @@ class _ExerciseLibraryPageState extends State<ExerciseLibraryPage> {
   void _viewExerciseDetails(CustomExercise exercise) {
     // Navigate to exercise details page
     print('View exercise: ${exercise.exerciseName}');
-
   }
 
   void _showAllRoutines() {

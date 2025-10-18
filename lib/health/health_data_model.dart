@@ -89,6 +89,18 @@ class HealthDataModel {
         return '${(value / 1000).toStringAsFixed(2)} km';
       case HealthDataType.ACTIVE_ENERGY_BURNED:
         return '${value.toInt()} calories';
+      case HealthDataType.SLEEP_DEEP:
+        return '${value.toInt()} minutes';
+      case HealthDataType.SLEEP_LIGHT:
+        return '${value.toInt()} minutes';
+      case HealthDataType.EXERCISE_TIME:
+        return '${value.toInt()} minutes';
+      case HealthDataType.APPLE_STAND_HOUR:
+        return '${value.toDouble()} hours';
+      case HealthDataType.APPLE_MOVE_TIME:
+        return '${value.toInt()} seconds';
+      case HealthDataType.EXERCISE_TIME:
+        return '${value.toInt()} minutes';
       default:
         return '${value.toStringAsFixed(1)} ${unit.name}';
     }
@@ -130,6 +142,8 @@ class HealthSummary {
   final int? sedentaryMinutes;
   final int? activeMinutes;
   final int? maxHeartRate;
+  final int? sleep_deep_minutes;
+  final int? sleep_light_minutes;
 
   HealthSummary({
     required this.totalSteps,
@@ -142,6 +156,8 @@ class HealthSummary {
     this.sedentaryMinutes,
     this.activeMinutes,
     this.maxHeartRate,
+    this.sleep_deep_minutes,
+    this.sleep_light_minutes,
   });
 
   factory HealthSummary.fromHealthData(
@@ -155,6 +171,10 @@ class HealthSummary {
     int heartRateCount = 0;
     double sleep = 0;
     int maxHeartRate = 0;
+    int sleep_deep_minutes = 0;
+    int sleep_light_minutes = 0;
+    int exerciseMinutes = 0;
+    int movetime = 0;
 
     for (var item in data) {
       switch (item.type) {
@@ -181,6 +201,18 @@ class HealthSummary {
         case HealthDataType.SLEEP_ASLEEP:
           sleep += item.value / 60;
           break;
+        case HealthDataType.SLEEP_DEEP:
+          sleep_deep_minutes += item.value.toInt();
+          break;
+        case HealthDataType.SLEEP_LIGHT:
+          sleep_light_minutes += item.value.toInt();
+          break;
+        case HealthDataType.EXERCISE_TIME:
+          exerciseMinutes += item.value.toInt();
+          break;
+        case HealthDataType.APPLE_MOVE_TIME:
+          movetime += item.value.toInt();
+          break;
         default:
           break;
       }
@@ -195,9 +227,11 @@ class HealthSummary {
       sleepHours: sleep,
       date: date,
       maxHeartRate: maxHeartRate,
-      exerciseMinutes: null,
-      sedentaryMinutes: null,
-      activeMinutes: null,
+      exerciseMinutes: exerciseMinutes,
+      sedentaryMinutes: 60 * 24 - exerciseMinutes,
+      activeMinutes: exerciseMinutes,
+      sleep_deep_minutes: sleep_deep_minutes,
+      sleep_light_minutes: sleep_light_minutes,
     );
   }
 
@@ -214,6 +248,8 @@ class HealthSummary {
       'sedentary_minutes': sedentaryMinutes,
       'active_minutes': activeMinutes,
       'max_heart_rate': maxHeartRate,
+      'sleep_deep_minutes': sleep_deep_minutes,
+      'sleep_light_minutes': sleep_light_minutes,
     };
   }
 }

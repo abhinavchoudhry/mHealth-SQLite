@@ -50,6 +50,8 @@ dev_dependencies:
   intl: ^0.18.0
   workmanager: ^0.9.0
   device_info_plus: ^10.1.0
+  uuid: ^4.5.1
+  fl_chart: ^0.66.2
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

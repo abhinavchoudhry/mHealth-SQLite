@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mhealthapp/db_helper.dart';
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
 import 'Settings/settings_1.dart';
 import 'challenges.dart';
 import 'exercise_lib/exercise_lib.dart';
@@ -7,12 +8,57 @@ import 'exercise_lib/exercise pages/create_workout.dart';
 import '/screens/home_page.dart';
 import 'exercise_lib/exercise pages/log_activity.dart';
 import '../main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ExercisePage extends StatelessWidget {
+class ExercisePage extends StatefulWidget {
   const ExercisePage({super.key});
+  @override
+  State<ExercisePage> createState() => _ExercisePageState();
+}
+
+class _ExercisePageState extends State<ExercisePage> {
+  int? _userId;
+  bool _loading = true;
+
+  Future<void> _loadUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final int? id = prefs.getInt('userId');
+    setState(() {
+      _userId = id;
+      _loading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    // Not logged in
+    if (_userId == null) {
+      return Scaffold(
+        body: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please log in first.')),
+              );
+              // Optionally navigate to LoginPage here.
+            },
+            child: const Text('Log in'),
+          ),
+        ),
+      );
+    }
+
+    final userId = _userId!;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -69,19 +115,14 @@ class ExercisePage extends StatelessWidget {
             ),
             SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () async {
+              onPressed: () {
                 // Check if user is logged in before accessing exercise library
-                if (await NavigationHelper.ensureUserLoggedIn(context)) {
-                  final userId = await NavigationHelper.getCurrentUserId();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => ExerciseLibraryPage(userId: userId!),
-                    ),
-                  );
-                }
-                ;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ExerciseLibraryPage(userId: _userId!),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple.shade100,
@@ -95,16 +136,13 @@ class ExercisePage extends StatelessWidget {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () async {
-                if (await NavigationHelper.ensureUserLoggedIn(context)) {
-                  final userId = await NavigationHelper.getCurrentUserId();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CreateWorkoutPage(userId: userId!),
-                    ),
-                  );
-                }
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CreateWorkoutPage(userId: _userId!),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple.shade100,
@@ -118,16 +156,13 @@ class ExercisePage extends StatelessWidget {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () async {
-                if (await NavigationHelper.ensureUserLoggedIn(context)) {
-                  final userId = await NavigationHelper.getCurrentUserId();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LogActivityPage(userId: userId!),
-                    ),
-                  );
-                }
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LogActivityPage(userId: _userId!),
+                  ),
+                );
               },
 
               style: ElevatedButton.styleFrom(
@@ -158,17 +193,22 @@ class ExercisePage extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (context) => HomePage()),
             );
+          } else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ExercisePage()),
+            );
           }
           // Navigate to ChatPage
           // else if (index == 1) {
           // }
           // Navigate to ActivityPage
-          // else if (index == 3) {
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => ())
-          //   );
-          // }
+          else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
+            );
+          }
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),

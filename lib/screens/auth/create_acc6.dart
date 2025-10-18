@@ -29,8 +29,8 @@ class CreateAccountStep6 extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16),
             ),
-            SizedBox(height: 40),
-            Image.asset('Images/success.png', height: 450, fit: BoxFit.contain),
+            SizedBox(height: 30),
+            Image.asset('Images/success.png', height: 400, fit: BoxFit.contain),
             SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {

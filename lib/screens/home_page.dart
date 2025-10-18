@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'ActivityStatus/activity_page.dart';
 import 'Settings/settings_1.dart';
 import 'challenges.dart';
 import 'exercise.dart';
@@ -72,13 +73,23 @@ class HomePage extends StatelessWidget {
               context,
               Icons.bar_chart,
               "View your Activity",
-              () {},
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ActivityPage()),
+                );
+              },
             ),
-            _buildActionButtonWithProgress(
+            _buildActionButton(
               context,
               Icons.settings,
               "Personalize your profile",
-              0.7,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              },
             ),
           ],
         ),
@@ -99,6 +110,12 @@ class HomePage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ExercisePage()),
+            );
+          } else if (index == 3) {
+            // Navigate to ChallengesPage
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
             );
           }
           // Optional: handle Chat (index == 1), Exercise (index == 2)

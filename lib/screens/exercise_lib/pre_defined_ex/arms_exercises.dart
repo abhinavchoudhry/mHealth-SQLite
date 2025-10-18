@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
 import '../../Settings/settings_1.dart';
 import '/screens/challenges.dart';
 import '/screens/home_page.dart';
@@ -10,7 +11,6 @@ import 'bicep_curl/overhead_press.dart';
 import 'bicep_curl/push_ups.dart';
 import 'bicep_curl/shoulder_roll.dart';
 import 'bicep_curl/tricep_dip.dart';
-
 
 class ArmsExercisesPage extends StatelessWidget {
   const ArmsExercisesPage({super.key});
@@ -28,7 +28,10 @@ class ArmsExercisesPage extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.emoji_events_outlined, color: Colors.black),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ChallengesPage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChallengesPage()),
+                );
               },
             ),
             Expanded(
@@ -38,7 +41,12 @@ class ArmsExercisesPage extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.settings, color: Color(0xFF3C314F)),
-              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              },
             ),
           ],
         ),
@@ -52,7 +60,10 @@ class ArmsExercisesPage extends StatelessWidget {
               icon: Icon(Icons.arrow_back, color: Colors.black),
               onPressed: () => Navigator.pop(context),
             ),
-            Text("Arms", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              "Arms",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 16),
             Expanded(
               child: GridView.count(
@@ -61,30 +72,120 @@ class ArmsExercisesPage extends StatelessWidget {
                 mainAxisSpacing: 12,
                 childAspectRatio: 1.2,
                 children: [
-                  _buildExerciseButton(context, "Bicep Curl", Icons.fitness_center, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => BicepCurlPage(title: "Bicep Curl")));
-                  }),
-                  _buildExerciseButton(context, "Hammer Curl", Icons.sports_martial_arts, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => HammerCurlPage(title: "Hammer Curl")));
-                  }),
-                  _buildExerciseButton(context, "Push-Up", Icons.accessibility_new, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => PushUpPage(title: "Push Up")));
-                  }),
-                  _buildExerciseButton(context, "Lateral Raise", Icons.airline_seat_legroom_normal, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => LateralRaisePage(title: "Lateral Raise")));
-                  }),
-                  _buildExerciseButton(context, "Overhead Press", Icons.upload, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => OverheadPressPage(title: "Overhead Press")));
-                  }),
-                  _buildExerciseButton(context, "Shoulder Roll", Icons.sync, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ShoulderRollPage(title: "Shoulder Roll")));
-                  }),
-                  _buildExerciseButton(context, "Tricep Dip", Icons.pan_tool, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => TricepDipPage(title: "Tricep Dip")));
-                  }),
-                  _buildExerciseButton(context, "Front Raise", Icons.fitness_center, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => FontRaisePage(title: "Front Raise")));
-                  }),
+                  _buildExerciseButton(
+                    context,
+                    "Bicep Curl",
+                    Icons.fitness_center,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => BicepCurlPage(title: "Bicep Curl"),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildExerciseButton(
+                    context,
+                    "Hammer Curl",
+                    Icons.sports_martial_arts,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => HammerCurlPage(title: "Hammer Curl"),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildExerciseButton(
+                    context,
+                    "Push-Up",
+                    Icons.accessibility_new,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PushUpPage(title: "Push Up"),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildExerciseButton(
+                    context,
+                    "Lateral Raise",
+                    Icons.airline_seat_legroom_normal,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  LateralRaisePage(title: "Lateral Raise"),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildExerciseButton(
+                    context,
+                    "Overhead Press",
+                    Icons.upload,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  OverheadPressPage(title: "Overhead Press"),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildExerciseButton(
+                    context,
+                    "Shoulder Roll",
+                    Icons.sync,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  ShoulderRollPage(title: "Shoulder Roll"),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildExerciseButton(
+                    context,
+                    "Tricep Dip",
+                    Icons.pan_tool,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => TricepDipPage(title: "Tricep Dip"),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildExerciseButton(
+                    context,
+                    "Front Raise",
+                    Icons.fitness_center,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => FontRaisePage(title: "Front Raise"),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -98,23 +199,46 @@ class ArmsExercisesPage extends StatelessWidget {
         unselectedItemColor: Colors.grey,
         onTap: (index) {
           if (index == 0) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => HomePage()),
+            );
           } else if (index == 2) {
             // Navigate to ChallengesPage
             Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+          } else if (index == 3) {
+            // Navigate to ChallengesPage
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => ActivityPage()),
+            );
           }
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
-          BottomNavigationBarItem(icon: Icon(Icons.format_list_bulleted), label: 'Exercise'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Activity'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.format_list_bulleted),
+            label: 'Exercise',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Activity',
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildExerciseButton(BuildContext context, String label, IconData icon, VoidCallback onPressed) {
+  Widget _buildExerciseButton(
+    BuildContext context,
+    String label,
+    IconData icon,
+    VoidCallback onPressed,
+  ) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(

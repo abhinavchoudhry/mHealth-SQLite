@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mhealthapp/db_helper.dart';
-import 'package:mhealthapp/models/exercise_models.dart';
+import 'package:mhealthapp/models/custom_exercise.dart';
+import 'package:mhealthapp/models/exercise_library.dart';
 import 'package:mhealthapp/models/routine_exercise.dart';
 
 class AddExercisePopup extends StatefulWidget {
@@ -29,7 +30,7 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
   List<CustomExercise> customExercises = [];
   List<dynamic> allExercises = [];
   dynamic selectedExercise;
-  
+
   bool isLoadingExercises = true;
   String? loadingError;
 
@@ -49,7 +50,7 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
       });
 
       //print('Loading exercises for user: ${widget.userId}');
-      
+
       // Load both library and custom exercises
       final futures = await Future.wait([
         dbHelper.getAllLibraryExercises(),
@@ -58,7 +59,7 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
 
       libraryExercises = futures[0] as List<ExerciseLibrary>;
       customExercises = futures[1] as List<CustomExercise>;
-      
+
       print('Loaded ${libraryExercises.length} library exercises');
       print('Loaded ${customExercises.length} custom exercises');
 
@@ -72,7 +73,6 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
           isLoadingExercises = false;
         });
       }
-
     } catch (e) {
       print('Error loading exercises: $e');
       if (mounted) {
@@ -104,7 +104,7 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
       if (exercise is ExerciseLibrary) {
         return exercise.targetArea ?? '';
       } else if (exercise is CustomExercise) {
-        return exercise.targetArea ?? '';
+        return exercise.targetArea.join(', ');
       }
     } catch (e) {
       print('Error getting exercise target area: $e');
@@ -132,7 +132,6 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
 
   @override
   Widget build(BuildContext context) {
-
     return Dialog(
       insetPadding: const EdgeInsets.all(16),
       backgroundColor: Colors.white,
@@ -200,9 +199,15 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
                     children: [
                       const Text(
                         'Error loading exercises',
-                        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      Text(loadingError!, style: const TextStyle(color: Colors.red)),
+                      Text(
+                        loadingError!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
                       const SizedBox(height: 8),
                       ElevatedButton(
                         onPressed: () {
@@ -230,7 +235,9 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
                         'No exercises available',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      Text('Please create some exercises first in your Exercise Library.'),
+                      Text(
+                        'Please create some exercises first in your Exercise Library.',
+                      ),
                     ],
                   ),
                 ),
@@ -264,11 +271,12 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: (isLoadingExercises || allExercises.isEmpty) 
-                      ? null 
-                      : () {
-                          _saveExercise();
-                        },
+                  onPressed:
+                      (isLoadingExercises || allExercises.isEmpty)
+                          ? null
+                          : () {
+                            _saveExercise();
+                          },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6B578C),
                     foregroundColor: Colors.white,
@@ -298,14 +306,14 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
     try {
       // Create dropdown items with better error handling
       final dropdownItems = <DropdownMenuItem<dynamic>>[];
-      
+
       for (int i = 0; i < allExercises.length; i++) {
         final exercise = allExercises[i];
         try {
           final name = _getExerciseName(exercise);
           final targetArea = _getExerciseTargetArea(exercise);
           final isCustom = !_isLibraryExercise(exercise);
-          
+
           dropdownItems.add(
             DropdownMenuItem(
               value: exercise,
@@ -321,10 +329,7 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
                   const SizedBox(width: 8),
                   Text(
                     '($targetArea${isCustom ? ' - Custom' : ''})',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],
               ),
@@ -340,7 +345,8 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
       }
 
       // Ensure selectedExercise is valid
-      if (selectedExercise == null || !allExercises.contains(selectedExercise)) {
+      if (selectedExercise == null ||
+          !allExercises.contains(selectedExercise)) {
         selectedExercise = allExercises.first;
       }
 
@@ -368,7 +374,6 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
         isExpanded: true,
         isDense: true,
       );
-      
     } catch (e, stackTrace) {
       return Container(
         padding: const EdgeInsets.all(12),
@@ -379,7 +384,10 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Error building dropdown:', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            const Text(
+              'Error building dropdown:',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
             Text('$e', style: const TextStyle(color: Colors.red, fontSize: 12)),
             const SizedBox(height: 8),
             ElevatedButton(
@@ -392,7 +400,11 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
     }
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, String hint) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller,
+    String hint,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -445,7 +457,10 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color(0xFF6B578C), width: 2),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF6B578C),
+                      width: 2,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   contentPadding: const EdgeInsets.all(12),
@@ -462,12 +477,10 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
               child: DropdownButton<String>(
                 value: selectedUnit,
                 underline: const SizedBox(),
-                items: unitOptions.map((unit) {
-                  return DropdownMenuItem(
-                    value: unit,
-                    child: Text(unit),
-                  );
-                }).toList(),
+                items:
+                    unitOptions.map((unit) {
+                      return DropdownMenuItem(value: unit, child: Text(unit));
+                    }).toList(),
                 onChanged: (value) {
                   if (mounted && value != null) {
                     setState(() {
@@ -489,11 +502,11 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
       _showError('Please select an exercise');
       return;
     }
-    
+
     final repsText = repsController.text.trim();
     final setsText = setsController.text.trim();
     final weightText = weightController.text.trim();
-    
+
     final reps = int.tryParse(repsText) ?? 0;
     final sets = int.tryParse(setsText) ?? 0;
     final weight = weightText.isEmpty ? 0 : (int.tryParse(weightText) ?? 0);
@@ -511,12 +524,14 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
     try {
       final routineExercise = RoutineExercise(
         workoutRoutineFactId: 0,
-        exerciseLibraryDimId: _isLibraryExercise(selectedExercise) 
-            ? _getExerciseId(selectedExercise)
-            : null,
-        userExerciseDimId: !_isLibraryExercise(selectedExercise) 
-            ? _getExerciseId(selectedExercise)
-            : null,
+        exerciseLibraryDimId:
+            _isLibraryExercise(selectedExercise)
+                ? _getExerciseId(selectedExercise)
+                : null,
+        userExerciseDimId:
+            !_isLibraryExercise(selectedExercise)
+                ? _getExerciseId(selectedExercise)
+                : null,
         repetitions: reps,
         sets: sets,
         weight: weight,
@@ -526,9 +541,8 @@ class _AddExercisePopupState extends State<AddExercisePopup> {
       );
 
       print('✅ Created routine exercise: ${routineExercise.exerciseName}');
-      
-      widget.onExerciseAdded(routineExercise);
 
+      widget.onExerciseAdded(routineExercise);
     } catch (e) {
       _showError('Error adding exercise: $e');
     }

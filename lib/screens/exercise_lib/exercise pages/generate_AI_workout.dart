@@ -1,3 +1,5 @@
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
+
 import '../../home_page.dart';
 import 'gen_AI_workout_2.dart';
 import 'package:flutter/material.dart';
@@ -5,15 +7,11 @@ import 'package:flutter/material.dart';
 class GenerateAIRoutinePopup extends StatefulWidget {
   final int userId;
 
-    const GenerateAIRoutinePopup({
-      super.key,
-      required this.userId,
-    });
+  const GenerateAIRoutinePopup({super.key, required this.userId});
 
   @override
   State<GenerateAIRoutinePopup> createState() => _GenerateAIRoutinePopupState();
 }
-
 
 class _GenerateAIRoutinePopupState extends State<GenerateAIRoutinePopup> {
   final List<String> selectedAreas = [];
@@ -29,19 +27,21 @@ class _GenerateAIRoutinePopupState extends State<GenerateAIRoutinePopup> {
     'Full Body': false,
   };
 
-  bool get hasSelectedTargetArea => targetAreas.values.any((selected) => selected);
-  bool get canProceed => 
-    hasSelectedTargetArea && 
-    durationController.text.trim().isNotEmpty && 
-    selectedIntensity != null;
+  bool get hasSelectedTargetArea =>
+      targetAreas.values.any((selected) => selected);
+  bool get canProceed =>
+      hasSelectedTargetArea &&
+      durationController.text.trim().isNotEmpty &&
+      selectedIntensity != null;
 
   void _onNext() {
     if (!canProceed) return;
 
-    final selectedTargets = targetAreas.entries
-        .where((entry) => entry.value)
-        .map((entry) => entry.key)
-        .toList();
+    final selectedTargets =
+        targetAreas.entries
+            .where((entry) => entry.value)
+            .map((entry) => entry.key)
+            .toList();
 
     final workoutData = {
       'user_id': widget.userId,
@@ -75,10 +75,7 @@ class _GenerateAIRoutinePopupState extends State<GenerateAIRoutinePopup> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
         ],
       ),
       body: Padding(
@@ -99,7 +96,6 @@ class _GenerateAIRoutinePopupState extends State<GenerateAIRoutinePopup> {
               style: TextStyle(fontSize: 14, color: Colors.black87),
             ),
             const SizedBox(height: 20),
-
 
             //Target Areas
             const Text(
@@ -132,10 +128,7 @@ class _GenerateAIRoutinePopupState extends State<GenerateAIRoutinePopup> {
                       activeColor: const Color(0xFF6B578C),
                     ),
                     Expanded(
-                      child: Text(
-                        area,
-                        style: const TextStyle(fontSize: 16),
-                      ),
+                      child: Text(area, style: const TextStyle(fontSize: 16)),
                     ),
                   ],
                 );
@@ -143,7 +136,6 @@ class _GenerateAIRoutinePopupState extends State<GenerateAIRoutinePopup> {
             ),
 
             const SizedBox(height: 24),
-
 
             // Workout Duration
             const Text(
@@ -163,7 +155,10 @@ class _GenerateAIRoutinePopupState extends State<GenerateAIRoutinePopup> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Color(0xFF6B578C), width: 2),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF6B578C),
+                    width: 2,
+                  ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 contentPadding: const EdgeInsets.all(12),
@@ -207,9 +202,8 @@ class _GenerateAIRoutinePopupState extends State<GenerateAIRoutinePopup> {
               child: ElevatedButton(
                 onPressed: canProceed ? _onNext : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: canProceed 
-                      ? const Color(0xFF6B578C) 
-                      : Colors.grey,
+                  backgroundColor:
+                      canProceed ? const Color(0xFF6B578C) : Colors.grey,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -240,26 +234,35 @@ class _GenerateAIRoutinePopupState extends State<GenerateAIRoutinePopup> {
           // Navigate to HomePage
           if (index == 0) {
             Navigator.push(
-              context, 
-              MaterialPageRoute(builder: (context) => HomePage())
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
             );
           }
           // Navigate to ChatPage
           // else if (index == 1) {
           // }
-          // Navigate to ActivityPage 
-          // else if (index == 3) {
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => ())
-          //   );
-          // }
+          // Navigate to ActivityPage
+          else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
+            );
+          }
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
-          BottomNavigationBarItem(icon: Icon(Icons.format_list_bulleted), label: 'Exercise'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Activity'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.format_list_bulleted),
+            label: 'Exercise',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Activity',
+          ),
         ],
       ),
     );

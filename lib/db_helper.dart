@@ -2,12 +2,41 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:io';
 import 'package:mhealthapp/health/health_package.dart';
-
-import 'models/exercise_models.dart';
+import 'package:mhealthapp/models/exercise_library.dart';
+import 'models/custom_exercise.dart';
 import 'models/workout_routine.dart';
 import 'models/routine_exercise.dart';
 import 'models/ai_routine_request.dart';
 import 'models/log_routine.dart';
+import 'package:uuid/uuid.dart';
+
+class ActivityStats {
+  final int steps;
+  final int calories;
+  final int avgBpm;
+  final double sedentaryHours;
+  final double activeHours;
+  final double sleepHours;
+
+  ActivityStats({
+    required this.steps,
+    required this.calories,
+    required this.avgBpm,
+    required this.sedentaryHours,
+    required this.activeHours,
+    required this.sleepHours,
+  });
+}
+
+enum Metric { steps, calories }
+
+DateTime _mondayOf(DateTime d) => d.subtract(Duration(days: d.weekday - 1));
+
+class DailyPoint {
+  final DateTime date;
+  final double value;
+  DailyPoint(this.date, this.value);
+}
 
 class DBHelper {
   static final DBHelper _instance = DBHelper._internal();
@@ -41,7 +70,7 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 19, // bump this when you change schema
+      version: 22, // bump this when you change schema
       onCreate: (db, version) async {
         await _createAllTables(db);
       },
@@ -101,6 +130,8 @@ class DBHelper {
       sedentary_minutes INTEGER,
       active_minutes INTEGER,
       max_heart_rate INTEGER,
+      sleep_deep_minutes INTEGER,
+      sleep_light_minutes INTEGER,
       FOREIGN KEY(user_id) REFERENCES user_dim(user_dim_id),
       UNIQUE(user_id, date)
     )
@@ -120,6 +151,11 @@ class DBHelper {
       max_bpm REAL,
       distance REAL
     )
+  ''');
+
+    await db.execute('''
+    CREATE UNIQUE INDEX IF NOT EXISTS unique_workout
+    ON workout_session_fact(user_id, workout_date, workout_name, start_time)
   ''');
 
     // Exercise library table
@@ -148,7 +184,8 @@ class DBHelper {
         equipment TEXT,
         instructions TEXT,
         warning TEXT,
-        photo_position TEXT,
+        photo_path TEXT,
+        photo_url TEXT,
         FOREIGN KEY (user_dim_id) REFERENCES user_dim(user_dim_id)
       )
     ''');
@@ -272,6 +309,49 @@ class DBHelper {
     for (final exercise in defaultExercises) {
       await db.insert('exercise_library_dim', exercise);
     }
+  }
+
+  Future<void> _updateCustomExerciseTables(Database db) async {
+    try {
+      // Check if photo_path column exists, if not add it
+      var tableInfo = await db.rawQuery(
+        'PRAGMA table_info(user_custom_exercise_dim)',
+      );
+      bool hasPhotoPath = tableInfo.any(
+        (column) => column['name'] == 'photo_path',
+      );
+      bool hasPhotoUrl = tableInfo.any(
+        (column) => column['name'] == 'photo_url',
+      );
+
+      if (!hasPhotoPath) {
+        await db.execute(
+          'ALTER TABLE user_custom_exercise_dim ADD COLUMN photo_path TEXT',
+        );
+      }
+      if (!hasPhotoUrl) {
+        await db.execute(
+          'ALTER TABLE user_custom_exercise_dim ADD COLUMN photo_url TEXT',
+        );
+      }
+
+      tableInfo = await db.rawQuery(
+        'PRAGMA table_info(user_custom_exercise_dim)',
+      );
+      hasPhotoPath = tableInfo.any((column) => column['name'] == 'photo_path');
+      hasPhotoUrl = tableInfo.any((column) => column['name'] == 'photo_url');
+
+      if (!hasPhotoPath) {
+        await db.execute(
+          'ALTER TABLE user_custom_exercise_dim ADD COLUMN photo_path TEXT',
+        );
+      }
+      if (!hasPhotoUrl) {
+        await db.execute(
+          'ALTER TABLE user_custom_exercise_dim ADD COLUMN photo_url TEXT',
+        );
+      }
+    } catch (e) {}
   }
 
   Future<int> insertUser(Map<String, dynamic> user) async {
@@ -974,5 +1054,345 @@ class DBHelper {
     for (var row in rows) {
       print(row);
     }
+  }
+
+  Future<List<Map<String, dynamic>>> getWorkoutLogs(int userId) async {
+    final dbClient = await db;
+
+    final rows = await dbClient.query(
+      'workout_session_fact',
+      columns: [
+        'workout_name',
+        'workout_date', // e.g., '2024-10-07'
+        'duration_min', // REAL
+        'calories_burned', // REAL
+      ],
+      where: 'user_id = ?',
+      whereArgs: [userId],
+      orderBy: 'workout_date DESC, start_time ASC',
+      limit: 30,
+    );
+    return rows;
+  }
+
+  Future<void> insertMockWorkoutSessions(int userId) async {
+    final dbClient = await db;
+    const uuid = Uuid();
+
+    final mockSessions = [
+      {
+        'workout_session_fact_id': uuid.v4(),
+        'user_id': userId,
+        'workout_name': 'Running',
+        'workout_date': '2024-10-12',
+        'duration_min': 36.0,
+        'start_time': '07:10',
+        'end_time': '07:46',
+        'calories_burned': 315.0,
+        'avg_bpm': 132.0,
+        'max_bpm': 168.0,
+        'distance': 5.4,
+      },
+      {
+        'workout_session_fact_id': uuid.v4(),
+        'user_id': userId,
+        'workout_name': 'Yoga',
+        'workout_date': '2024-10-13',
+        'duration_min': 45.0,
+        'start_time': '18:05',
+        'end_time': '18:50',
+        'calories_burned': 185.0,
+        'avg_bpm': 92.0,
+        'max_bpm': 112.0,
+        'distance': 0.0,
+      },
+      {
+        'workout_session_fact_id': uuid.v4(),
+        'user_id': userId,
+        'workout_name': 'Cycling',
+        'workout_date': '2024-10-14',
+        'duration_min': 50.0,
+        'start_time': '08:20',
+        'end_time': '09:10',
+        'calories_burned': 425.0,
+        'avg_bpm': 136.0,
+        'max_bpm': 173.0,
+        'distance': 14.8,
+      },
+    ];
+
+    final batch = dbClient.batch();
+    for (final session in mockSessions) {
+      batch.insert(
+        'workout_session_fact',
+        session,
+        conflictAlgorithm: ConflictAlgorithm.ignore, // or replace if desired
+      );
+    }
+
+    await batch.commit(noResult: true);
+  }
+
+  Future<ActivityStats?> getDailyStats({
+    required int userId,
+    DateTime? day,
+  }) async {
+    final dbc = await db;
+    final ymd = day?.toIso8601String().split('T').first;
+
+    final rows = await dbc.query(
+      'daily_activity_fact',
+      columns: [
+        'total_steps',
+        'total_calories',
+        'average_heart_rate',
+        'sedentary_minutes',
+        'active_minutes',
+        'sleep_hours',
+      ],
+      where: 'user_id = ? AND date = ?',
+      whereArgs: [userId, ymd],
+      limit: 1,
+    );
+
+    if (rows.isEmpty) return null;
+
+    final r = rows.first;
+    return ActivityStats(
+      steps: (r['total_steps'] ?? 0) as int,
+      calories: (r['total_calories'] ?? 0) as int,
+      avgBpm: (r['average_heart_rate'] ?? 0) as int,
+      sleepHours: (r['sleep_hours'] as num?)?.toDouble() ?? 0.0,
+      sedentaryHours:
+          ((r['sedentary_minutes'] ?? 0.0) as num).toDouble() / 60.0,
+      activeHours: ((r['active_minutes'] ?? 0) as num).toDouble() / 60.0,
+    );
+  }
+
+  Future<List<DailyPoint>> getWeekActivity({
+    required int userId,
+    required DateTime weekStart,
+    required Metric metric,
+  }) async {
+    final dbclient = await db;
+    final start = _mondayOf(weekStart);
+    final end = start.add(const Duration(days: 6));
+
+    final col = (metric == Metric.steps) ? 'total_steps' : 'total_calories';
+
+    final rows = await dbclient.rawQuery(
+      '''
+      SELECT date, $col AS val
+      FROM daily_activity_fact
+      WHERE user_id = ?
+        AND date BETWEEN ? AND ?
+      ORDER BY date ASC
+    ''',
+      [
+        userId,
+        start.toIso8601String().split('T').first,
+        end.toIso8601String().split('T').first,
+      ],
+    );
+
+    // Map results for quick lookup
+    final map = <String, double>{};
+    for (final r in rows) {
+      final k = (r['date'] as String);
+      final v = (r['val'] as num?)?.toDouble() ?? 0.0;
+      map[k] = v;
+    }
+
+    // Return exactly 7 points (Mon..Sun), fill missing with 0
+    return List.generate(7, (i) {
+      final d = start.add(Duration(days: i));
+      return DailyPoint(d, map[d.toIso8601String().split('T').first] ?? 0.0);
+    });
+  }
+
+  Future<void> insertMockDailyData(int userId) async {
+    final dbClient = await db;
+
+    final today = DateTime.now();
+    final List<DateTime> days = List.generate(
+      14,
+      (i) => today.subtract(Duration(days: 13 - i)),
+    );
+
+    final mockTemplate = [
+      {
+        'total_steps': 8500,
+        'total_distance': 6.3,
+        'total_calories': 2100,
+        'average_heart_rate': 78,
+        'sleep_hours': 7.2,
+        'exercise_minutes': 45,
+        'sedentary_minutes': 420,
+        'active_minutes': 180,
+        'max_heart_rate': 128,
+      },
+      {
+        'total_steps': 10400,
+        'total_distance': 7.5,
+        'total_calories': 2350,
+        'average_heart_rate': 82,
+        'sleep_hours': 6.8,
+        'exercise_minutes': 60,
+        'sedentary_minutes': 480,
+        'active_minutes': 200,
+        'max_heart_rate': 140,
+      },
+      {
+        'total_steps': 5200,
+        'total_distance': 3.9,
+        'total_calories': 1800,
+        'average_heart_rate': 70,
+        'sleep_hours': 8.1,
+        'exercise_minutes': 20,
+        'sedentary_minutes': 510,
+        'active_minutes': 100,
+        'max_heart_rate': 115,
+      },
+      {
+        'total_steps': 12100,
+        'total_distance': 8.6,
+        'total_calories': 2600,
+        'average_heart_rate': 88,
+        'sleep_hours': 7.5,
+        'exercise_minutes': 70,
+        'sedentary_minutes': 400,
+        'active_minutes': 220,
+        'max_heart_rate': 150,
+      },
+      {
+        'total_steps': 9600,
+        'total_distance': 6.9,
+        'total_calories': 2250,
+        'average_heart_rate': 76,
+        'sleep_hours': 7.0,
+        'exercise_minutes': 50,
+        'sedentary_minutes': 450,
+        'active_minutes': 160,
+        'max_heart_rate': 130,
+      },
+      {
+        'total_steps': 6400,
+        'total_distance': 4.2,
+        'total_calories': 1900,
+        'average_heart_rate': 74,
+        'sleep_hours': 8.3,
+        'exercise_minutes': 35,
+        'sedentary_minutes': 490,
+        'active_minutes': 120,
+        'max_heart_rate': 125,
+      },
+      {
+        'total_steps': 7200,
+        'total_distance': 5.0,
+        'total_calories': 2000,
+        'average_heart_rate': 72,
+        'sleep_hours': 8.0,
+        'exercise_minutes': 40,
+        'sedentary_minutes': 460,
+        'active_minutes': 130,
+        'max_heart_rate': 127,
+      },
+      {
+        'total_steps': 8800,
+        'total_distance': 6.7,
+        'total_calories': 2200,
+        'average_heart_rate': 79,
+        'sleep_hours': 7.6,
+        'exercise_minutes': 50,
+        'sedentary_minutes': 430,
+        'active_minutes': 190,
+        'max_heart_rate': 132,
+      },
+      {
+        'total_steps': 11100,
+        'total_distance': 8.1,
+        'total_calories': 2450,
+        'average_heart_rate': 84,
+        'sleep_hours': 7.1,
+        'exercise_minutes': 65,
+        'sedentary_minutes': 470,
+        'active_minutes': 210,
+        'max_heart_rate': 142,
+      },
+      {
+        'total_steps': 5600,
+        'total_distance': 4.1,
+        'total_calories': 1850,
+        'average_heart_rate': 72,
+        'sleep_hours': 8.4,
+        'exercise_minutes': 25,
+        'sedentary_minutes': 500,
+        'active_minutes': 110,
+        'max_heart_rate': 118,
+      },
+      {
+        'total_steps': 12400,
+        'total_distance': 8.8,
+        'total_calories': 2650,
+        'average_heart_rate': 89,
+        'sleep_hours': 7.4,
+        'exercise_minutes': 75,
+        'sedentary_minutes': 390,
+        'active_minutes': 230,
+        'max_heart_rate': 155,
+      },
+      {
+        'total_steps': 9800,
+        'total_distance': 7.0,
+        'total_calories': 2300,
+        'average_heart_rate': 77,
+        'sleep_hours': 7.3,
+        'exercise_minutes': 55,
+        'sedentary_minutes': 440,
+        'active_minutes': 170,
+        'max_heart_rate': 133,
+      },
+      {
+        'total_steps': 6700,
+        'total_distance': 4.6,
+        'total_calories': 1950,
+        'average_heart_rate': 75,
+        'sleep_hours': 8.2,
+        'exercise_minutes': 30,
+        'sedentary_minutes': 480,
+        'active_minutes': 125,
+        'max_heart_rate': 126,
+      },
+      {
+        'total_steps': 7400,
+        'total_distance': 5.3,
+        'total_calories': 2050,
+        'average_heart_rate': 73,
+        'sleep_hours': 8.1,
+        'exercise_minutes': 45,
+        'sedentary_minutes': 450,
+        'active_minutes': 140,
+        'max_heart_rate': 128,
+      },
+    ];
+
+    final mockData = List.generate(14, (i) {
+      final record = Map<String, dynamic>.from(
+        mockTemplate[i % mockTemplate.length],
+      );
+      record['user_id'] = userId;
+      record['date'] = days[i].toIso8601String().split('T').first; // YYYY-MM-DD
+      return record;
+    });
+
+    final batch = dbClient.batch();
+    for (final record in mockData) {
+      batch.insert(
+        'daily_activity_fact',
+        record,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+    await batch.commit(noResult: true);
   }
 }

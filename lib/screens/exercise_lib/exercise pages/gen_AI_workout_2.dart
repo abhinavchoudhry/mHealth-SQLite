@@ -1,3 +1,4 @@
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
 import 'package:mhealthapp/screens/home_page.dart';
 
 import 'gen_AI_workout_3.dart';
@@ -7,10 +8,7 @@ import 'package:flutter/material.dart';
 class UserGoalsPopup extends StatefulWidget {
   final Map<String, dynamic> workoutData;
 
-  const UserGoalsPopup({
-    super.key,
-    required this.workoutData,
-  });
+  const UserGoalsPopup({super.key, required this.workoutData});
 
   @override
   State<UserGoalsPopup> createState() => _UserGoalsPopupState();
@@ -19,7 +17,8 @@ class UserGoalsPopup extends StatefulWidget {
 class _UserGoalsPopupState extends State<UserGoalsPopup> {
   final List<String> selectedGoals = [];
   final TextEditingController customGoalsController = TextEditingController();
-  final TextEditingController healthConditionsController = TextEditingController();
+  final TextEditingController healthConditionsController =
+      TextEditingController();
   String? selectedFitnessLevel;
 
   final Map<String, bool> goals = {
@@ -45,25 +44,28 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
   void _onNext() {
     if (!canProceed) return;
 
-    final selectedGoalsList = goals.entries
-        .where((entry) => entry.value)
-        .map((entry) => entry.key)
-        .toList();
+    final selectedGoalsList =
+        goals.entries
+            .where((entry) => entry.value)
+            .map((entry) => entry.key)
+            .toList();
 
     // Parse health conditions from text input
-    final healthConditionsList = healthConditionsController.text.trim().isEmpty
-        ? <String>[]
-        : healthConditionsController.text
-            .split(',')
-            .map((condition) => condition.trim())
-            .where((condition) => condition.isNotEmpty)
-            .toList();
+    final healthConditionsList =
+        healthConditionsController.text.trim().isEmpty
+            ? <String>[]
+            : healthConditionsController.text
+                .split(',')
+                .map((condition) => condition.trim())
+                .where((condition) => condition.isNotEmpty)
+                .toList();
 
     final updatedData = Map<String, dynamic>.from(widget.workoutData);
     updatedData['goals'] = selectedGoalsList;
-    updatedData['custom_goals'] = customGoalsController.text.trim().isEmpty 
-        ? null 
-        : customGoalsController.text.trim();
+    updatedData['custom_goals'] =
+        customGoalsController.text.trim().isEmpty
+            ? null
+            : customGoalsController.text.trim();
     updatedData['health_conditions'] = healthConditionsList;
     updatedData['fitness_level'] = selectedFitnessLevel!;
 
@@ -74,7 +76,6 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -93,13 +94,10 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,18 +111,22 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
                     // Exercise Goals
                     const Text(
                       'Exercise Goal(s):',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 4,
-                        childAspectRatio: 3.5,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 4,
+                            childAspectRatio: 3.5,
+                          ),
                       itemCount: goals.length,
                       itemBuilder: (context, index) {
                         final goal = goals.keys.elementAt(index);
@@ -160,13 +162,20 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
                             controller: customGoalsController,
                             decoration: InputDecoration(
                               hintText: 'Add custom goal...',
-                              hintStyle: const TextStyle(color: Color(0xFF6B578C)),
+                              hintStyle: const TextStyle(
+                                color: Color(0xFF6B578C),
+                              ),
                               enabledBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: Color(0xFF6B578C)),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF6B578C),
+                                ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: Color(0xFF6B578C), width: 2),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF6B578C),
+                                  width: 2,
+                                ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               contentPadding: const EdgeInsets.all(12),
@@ -194,7 +203,10 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
                     // Health Conditions
                     const Text(
                       'Preexisting Health Condition(s)',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     const Text(
@@ -212,14 +224,20 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
                       controller: healthConditionsController,
                       maxLines: 3,
                       decoration: InputDecoration(
-                        hintText: 'Enter health conditions separated by commas...',
+                        hintText:
+                            'Enter health conditions separated by commas...',
                         hintStyle: const TextStyle(color: Color(0xFF6B578C)),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xFF6B578C)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF6B578C),
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xFF6B578C), width: 2),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF6B578C),
+                            width: 2,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         contentPadding: const EdgeInsets.all(12),
@@ -231,7 +249,10 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
                     // Fitness Level
                     const Text(
                       'Current Fitness Level',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 8),
 
@@ -260,9 +281,8 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
               child: ElevatedButton(
                 onPressed: canProceed ? _onNext : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: canProceed 
-                      ? const Color(0xFF6B578C) 
-                      : Colors.grey,
+                  backgroundColor:
+                      canProceed ? const Color(0xFF6B578C) : Colors.grey,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -293,26 +313,35 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
           // Navigate to HomePage
           if (index == 0) {
             Navigator.push(
-              context, 
-              MaterialPageRoute(builder: (context) => HomePage())
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
             );
           }
           // Navigate to ChatPage
           // else if (index == 1) {
           // }
-          // Navigate to ActivityPage 
-          // else if (index == 3) {
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => ())
-          //   );
-          // }
+          // Navigate to ActivityPage
+          else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
+            );
+          }
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
-          BottomNavigationBarItem(icon: Icon(Icons.format_list_bulleted), label: 'Exercise'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Activity'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.format_list_bulleted),
+            label: 'Exercise',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Activity',
+          ),
         ],
       ),
     );

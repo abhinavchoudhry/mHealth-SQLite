@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
 import '../../../Settings/settings_1.dart';
 import '/screens/home_page.dart';
 import 'package:video_player/video_player.dart';
@@ -19,8 +20,8 @@ class _BicepCurlPageState extends State<BicepCurlPage> {
   void initState() {
     super.initState();
     _controller = VideoPlayerController.network(
-      'https://www.sample-videos.com/video123/mp4/480/asdasdas.mp4', // Replace with actual video URL
-    )
+        'https://www.sample-videos.com/video123/mp4/480/asdasdas.mp4', // Replace with actual video URL
+      )
       ..initialize().then((_) {
         setState(() {});
       });
@@ -43,7 +44,10 @@ class _BicepCurlPageState extends State<BicepCurlPage> {
         title: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.emoji_events_outlined, color: Colors.black),
+              icon: const Icon(
+                Icons.emoji_events_outlined,
+                color: Colors.black,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
             Expanded(
@@ -55,7 +59,12 @@ class _BicepCurlPageState extends State<BicepCurlPage> {
             ),
             IconButton(
               icon: const Icon(Icons.settings, color: Colors.deepPurple),
-              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              },
             ),
           ],
         ),
@@ -71,59 +80,82 @@ class _BicepCurlPageState extends State<BicepCurlPage> {
                   icon: const Icon(Icons.arrow_back, color: Colors.black),
                   onPressed: () => Navigator.pop(context),
                 ),
-                Text(widget.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
                 const SizedBox(height: 12),
 
                 // Video Player
                 _controller.value.isInitialized
                     ? AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: VideoPlayer(_controller),
-                )
+                      aspectRatio: _controller.value.aspectRatio,
+                      child: VideoPlayer(_controller),
+                    )
                     : Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
+                      height: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
                 const SizedBox(height: 12),
                 Center(
                   child: IconButton(
                     icon: Icon(
-                      _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                      _controller.value.isPlaying
+                          ? Icons.pause
+                          : Icons.play_arrow,
                       color: Colors.deepPurple,
                       size: 40,
                     ),
                     onPressed: () {
                       setState(() {
-                        _controller.value.isPlaying ? _controller.pause() : _controller.play();
+                        _controller.value.isPlaying
+                            ? _controller.pause()
+                            : _controller.play();
                       });
                     },
                   ),
                 ),
 
                 const SizedBox(height: 24),
-                const Text("Exercise Description", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text(
+                  "Exercise Description",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
                 const SizedBox(height: 8),
-                const Text("** Caution: Lorem Ipsum", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                const Text(
+                  "** Caution: Lorem Ipsum",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 const Text(
                   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-                      "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                  "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
                 ),
                 const SizedBox(height: 16),
-                const Text("You will need:", style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  "You will need:",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const Text("• Dumbbells\n• Yoga mat"),
                 const SizedBox(height: 16),
-                const Text("Steps:", style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  "Steps:",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const Text(
                   "1. Lorem ipsum dolor sit amet, consectetur.\n"
-                      "2. Adipiscing elit.\n"
-                      "3. Sed do eiusmod tempor incididunt ut labore.",
+                  "2. Adipiscing elit.\n"
+                  "3. Sed do eiusmod tempor incididunt ut labore.",
                 ),
               ],
             ),
@@ -137,16 +169,33 @@ class _BicepCurlPageState extends State<BicepCurlPage> {
         unselectedItemColor: Colors.grey,
         onTap: (index) {
           if (index == 0) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => HomePage()),
+            );
           } else if (index == 2) {
             Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+          } else if (index == 3) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => ActivityPage()),
+            );
           }
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
-          BottomNavigationBarItem(icon: Icon(Icons.format_list_bulleted), label: 'Exercise'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Activity'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.format_list_bulleted),
+            label: 'Exercise',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Activity',
+          ),
         ],
       ),
     );

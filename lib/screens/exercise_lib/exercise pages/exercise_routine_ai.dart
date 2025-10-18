@@ -1,3 +1,5 @@
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
+
 import '../../Settings/settings_1.dart';
 import '../../challenges.dart';
 import '../../exercise.dart';
@@ -13,7 +15,7 @@ class ExerciseRoutinePage extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final horizontalPadding = screenWidth * 0.08;
     // final iconSize = screenWidth * 0.08; // Trophy and settings icon size
-    final textScale = screenWidth / 375; 
+    final textScale = screenWidth / 375;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -25,7 +27,12 @@ class ExerciseRoutinePage extends StatelessWidget {
           children: [
             IconButton(
               icon: Icon(Icons.emoji_events_outlined, color: Colors.black),
-              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => ChallengesPage()),);},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChallengesPage()),
+                );
+              },
             ),
             Expanded(
               child: Row(
@@ -39,7 +46,12 @@ class ExerciseRoutinePage extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.settings, color: Colors.deepPurple),
-              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              },
             ),
           ],
         ),
@@ -62,19 +74,16 @@ class ExerciseRoutinePage extends StatelessWidget {
           // Navigate to ChatPage
           // else if (index == 1) {
           // }
-          // Navigate to ActivityPage 
-          // else if (index == 3) {
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => ())
-          //   );
-          // }
+          // Navigate to ActivityPage
+          else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
+            );
+          }
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             label: 'Chat',
@@ -97,7 +106,11 @@ class ExerciseRoutinePage extends StatelessWidget {
             children: [
               SizedBox(height: screenWidth * 0.04),
               IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.black, size: screenWidth * 0.07),
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: Colors.black,
+                  size: screenWidth * 0.07,
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
               SizedBox(height: screenWidth * 0.02),
@@ -111,7 +124,10 @@ class ExerciseRoutinePage extends StatelessWidget {
               SizedBox(height: screenWidth * 0.01),
               Text(
                 '*Click to personalize routine name',
-                style: TextStyle(fontSize: 12 * textScale, color: Colors.black87),
+                style: TextStyle(
+                  fontSize: 12 * textScale,
+                  color: Colors.black87,
+                ),
               ),
               SizedBox(height: screenWidth * 0.04),
 
@@ -150,10 +166,14 @@ class ExerciseRoutinePage extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(
-                  onPressed: () { Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const ExercisePage()),
-                    (route) => false,
-                  );},
+                  onPressed: () {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => const ExercisePage(),
+                      ),
+                      (route) => false,
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6B578C),
                     foregroundColor: Colors.white,
@@ -196,21 +216,23 @@ class ExerciseRoutinePage extends StatelessWidget {
               ),
               SizedBox(height: screenWidth * 0.02),
               GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) => const ExercisePage()),
-                        (route) => false, 
-                      );
-                    },
-                    child: Text(
-                      'Generate new routine',
-                      style: TextStyle(
-                        fontSize: 14 * textScale,
-                        color: const Color(0xFF6B578C),
-                        decoration: TextDecoration.underline,
-                      ),
+                onTap: () {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => const ExercisePage(),
                     ),
+                    (route) => false,
+                  );
+                },
+                child: Text(
+                  'Generate new routine',
+                  style: TextStyle(
+                    fontSize: 14 * textScale,
+                    color: const Color(0xFF6B578C),
+                    decoration: TextDecoration.underline,
                   ),
+                ),
+              ),
 
               SizedBox(height: screenWidth * 0.01),
               GestureDetector(
@@ -241,7 +263,13 @@ class ExerciseRoutinePage extends StatelessWidget {
     );
   }
 
-  TableRow tableRow(String ex, String reps, String sets, String wt, double textScale) {
+  TableRow tableRow(
+    String ex,
+    String reps,
+    String sets,
+    String wt,
+    double textScale,
+  ) {
     return TableRow(
       children: [
         tableCellContent(ex, textScale),
@@ -258,5 +286,4 @@ class ExerciseRoutinePage extends StatelessWidget {
       child: Text(text, style: TextStyle(fontSize: 14 * textScale)),
     );
   }
-  }
-
+}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
 import 'Settings/settings_1.dart';
 import 'challenges.dart';
 
@@ -18,7 +19,12 @@ class BadgesPage extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.settings, color: Colors.black),
-            onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
           ),
         ],
       ),
@@ -29,7 +35,9 @@ class BadgesPage extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 40,
-              backgroundImage: AssetImage('assets/profile_image.png'), // your profile image
+              backgroundImage: AssetImage(
+                'assets/profile_image.png',
+              ), // your profile image
             ),
             SizedBox(height: 12),
             Align(
@@ -63,13 +71,12 @@ class BadgesPage extends StatelessWidget {
                       children: [
                         CircleAvatar(
                           radius: 40,
-                          backgroundImage: AssetImage('assets/on_a_roll.png'), // your badge image
+                          backgroundImage: AssetImage(
+                            'assets/on_a_roll.png',
+                          ), // your badge image
                         ),
                         SizedBox(height: 8),
-                        Text(
-                          "On a Roll",
-                          style: TextStyle(fontSize: 14),
-                        ),
+                        Text("On a Roll", style: TextStyle(fontSize: 14)),
                       ],
                     );
                   } else {
@@ -108,15 +115,15 @@ class BadgesPage extends StatelessWidget {
             Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
           } else if (index == 3) {
             // Navigate to ChallengesPage
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ChallengesPage()),);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
+            );
           }
           // Optional: handle Chat (index == 1), Exercise (index == 2)
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             label: 'Chat',

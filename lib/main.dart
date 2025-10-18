@@ -4,6 +4,7 @@ import 'package:mhealthapp/screens/auth/startup.dart';
 import 'screens/home_page.dart';
 import 'screens/auth/welcome_pg.dart';
 import 'screens/auth/login.dart';
+import 'screens/ActivityStatus/activity_page.dart';
 import 'screens/auth/create_acc1.dart';
 import 'screens/auth/create_acc2.dart';
 import 'screens/auth/create_acc3.dart';
@@ -77,6 +78,7 @@ class MyApp extends StatelessWidget {
         '/exercise': (context) => const ExercisePage(),
         '/startup': (context) => const StartupPage(),
         '/healthdata': (context) => HealthDashboard(),
+        '/Activity': (context) => ActivityPage(),
       },
 
       // Handle routes that need parameters

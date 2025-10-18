@@ -251,28 +251,28 @@ class _PermissionPageState extends State<PermissionPage> {
                             ),
                   ),
                 ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: OutlinedButton(
-                    onPressed: _isLoading ? null : _writeTestData,
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.green.shade600),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      'Write Test Data',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green.shade600,
-                      ),
-                    ),
-                  ),
-                ),
+                // const SizedBox(height: 16),
+                // SizedBox(
+                //   width: double.infinity,
+                //   height: 50,
+                //   child: OutlinedButton(
+                //     onPressed: _isLoading ? null : _writeTestData,
+                //     style: OutlinedButton.styleFrom(
+                //       side: BorderSide(color: Colors.green.shade600),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(12),
+                //       ),
+                //     ),
+                //     child: Text(
+                //       'Write Test Data',
+                //       style: TextStyle(
+                //         fontSize: 16,
+                //         fontWeight: FontWeight.bold,
+                //         color: Colors.green.shade600,
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,

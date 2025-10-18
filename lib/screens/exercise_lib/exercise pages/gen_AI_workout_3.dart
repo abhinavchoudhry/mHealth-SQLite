@@ -1,6 +1,7 @@
 // import 'package:exercises_pages/exercise_routine_ai.dart';
 import 'package:mhealthapp/db_helper.dart';
 import 'package:mhealthapp/models/ai_routine_request.dart';
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
 import 'package:mhealthapp/screens/home_page.dart';
 
 import 'loading_plan_popup.dart';
@@ -9,20 +10,17 @@ import 'package:flutter/material.dart';
 class AdditionalCommentsPopup extends StatefulWidget {
   final Map<String, dynamic> workoutData;
 
-  const AdditionalCommentsPopup({
-    super.key,
-    required this.workoutData,
-  });
-
+  const AdditionalCommentsPopup({super.key, required this.workoutData});
 
   @override
-  State<AdditionalCommentsPopup> createState() => _AdditionalCommentsPopupState();
+  State<AdditionalCommentsPopup> createState() =>
+      _AdditionalCommentsPopupState();
 }
 
 class _AdditionalCommentsPopupState extends State<AdditionalCommentsPopup> {
   final TextEditingController _commentsController = TextEditingController();
 
-    void _onCreateRoutine() async {
+  void _onCreateRoutine() async {
     try {
       // Create AIRoutineRequest object
       final request = AIRoutineRequest(
@@ -32,11 +30,14 @@ class _AdditionalCommentsPopupState extends State<AdditionalCommentsPopup> {
         intensity: widget.workoutData['intensity'],
         goals: List<String>.from(widget.workoutData['goals']),
         customGoals: widget.workoutData['custom_goals'],
-        healthConditions: List<String>.from(widget.workoutData['health_conditions'] ?? []),
+        healthConditions: List<String>.from(
+          widget.workoutData['health_conditions'] ?? [],
+        ),
         fitnessLevel: widget.workoutData['fitness_level'],
-        additionalComments: _commentsController.text.trim().isEmpty 
-            ? null 
-            : _commentsController.text.trim(),
+        additionalComments:
+            _commentsController.text.trim().isEmpty
+                ? null
+                : _commentsController.text.trim(),
       );
 
       // Save to database
@@ -47,28 +48,28 @@ class _AdditionalCommentsPopupState extends State<AdditionalCommentsPopup> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => LoadingDialog(
-          userId: widget.workoutData['user_id'],
-        ),
+        builder:
+            (context) => LoadingDialog(userId: widget.workoutData['user_id']),
       );
     } catch (e) {
       // Show error dialog
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Error'),
-          content: Text('Failed to create AI workout request: $e'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+        builder:
+            (context) => AlertDialog(
+              title: const Text('Error'),
+              content: Text('Failed to create AI workout request: $e'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
             ),
-          ],
-        ),
       );
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -86,10 +87,7 @@ class _AdditionalCommentsPopupState extends State<AdditionalCommentsPopup> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
         ],
       ),
       body: Padding(
@@ -115,7 +113,9 @@ class _AdditionalCommentsPopupState extends State<AdditionalCommentsPopup> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFF6B578C).withOpacity(0.3)),
+                border: Border.all(
+                  color: const Color(0xFF6B578C).withOpacity(0.3),
+                ),
                 borderRadius: BorderRadius.circular(8),
                 color: const Color(0xFF6B578C).withOpacity(0.05),
               ),
@@ -127,10 +127,16 @@ class _AdditionalCommentsPopupState extends State<AdditionalCommentsPopup> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
-                  Text('Target Areas: ${(widget.workoutData['target_areas'] as List).join(', ')}'),
-                  Text('Duration: ${widget.workoutData['duration_minutes']} minutes'),
+                  Text(
+                    'Target Areas: ${(widget.workoutData['target_areas'] as List).join(', ')}',
+                  ),
+                  Text(
+                    'Duration: ${widget.workoutData['duration_minutes']} minutes',
+                  ),
                   Text('Intensity: ${widget.workoutData['intensity']}'),
-                  Text('Goals: ${(widget.workoutData['goals'] as List).join(', ')}'),
+                  Text(
+                    'Goals: ${(widget.workoutData['goals'] as List).join(', ')}',
+                  ),
                   Text('Fitness Level: ${widget.workoutData['fitness_level']}'),
                 ],
               ),
@@ -158,7 +164,10 @@ class _AdditionalCommentsPopupState extends State<AdditionalCommentsPopup> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color(0xFF6B578C), width: 2),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF6B578C),
+                        width: 2,
+                      ),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     contentPadding: const EdgeInsets.all(12),
@@ -210,26 +219,35 @@ class _AdditionalCommentsPopupState extends State<AdditionalCommentsPopup> {
           // Navigate to HomePage
           if (index == 0) {
             Navigator.push(
-              context, 
-              MaterialPageRoute(builder: (context) => HomePage())
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
             );
           }
           // Navigate to ChatPage
           // else if (index == 1) {
           // }
-          // Navigate to ActivityPage 
-          // else if (index == 3) {
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => ())
-          //   );
-          // }
+          // Navigate to ActivityPage
+          else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
+            );
+          }
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
-          BottomNavigationBarItem(icon: Icon(Icons.format_list_bulleted), label: 'Exercise'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Activity'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.format_list_bulleted),
+            label: 'Exercise',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Activity',
+          ),
         ],
       ),
     );
@@ -241,5 +259,3 @@ class _AdditionalCommentsPopupState extends State<AdditionalCommentsPopup> {
     super.dispose();
   }
 }
-
-

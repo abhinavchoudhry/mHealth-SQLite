@@ -1,3 +1,5 @@
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
+
 import '../../Settings/settings_1.dart';
 import '../../challenges.dart';
 import '../../home_page.dart';
@@ -5,14 +7,10 @@ import 'create_workout_own.dart';
 import 'generate_AI_workout.dart';
 import 'package:flutter/material.dart';
 
-
 class CreateWorkoutPage extends StatelessWidget {
   final int userId;
 
-  const CreateWorkoutPage({
-    super.key,
-    required this.userId,
-  });
+  const CreateWorkoutPage({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +27,12 @@ class CreateWorkoutPage extends StatelessWidget {
           children: [
             IconButton(
               icon: Icon(Icons.emoji_events_outlined, color: Colors.black),
-              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => ChallengesPage()),);},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChallengesPage()),
+                );
+              },
             ),
             Expanded(
               child: Row(
@@ -43,7 +46,12 @@ class CreateWorkoutPage extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.settings, color: Colors.deepPurple),
-              onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              },
             ),
           ],
         ),
@@ -60,26 +68,23 @@ class CreateWorkoutPage extends StatelessWidget {
           // Navigate to HomePage
           if (index == 0) {
             Navigator.push(
-              context, 
-              MaterialPageRoute(builder: (context) => HomePage())
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
             );
           }
           // Navigate to ChatPage
           // else if (index == 1) {
           // }
-          // Navigate to ActivityPage 
-          // else if (index == 3) {
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => ())
-          //   );
-          // }
+          // Navigate to ActivityPage
+          else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
+            );
+          }
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             label: 'Chat',
@@ -117,8 +122,12 @@ class CreateWorkoutPage extends StatelessWidget {
             const SizedBox(height: 4),
             GestureDetector(
               onTap: () {
-                Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => BuildRoutinePage(userId: userId)));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BuildRoutinePage(userId: userId),
+                  ),
+                );
               },
               child: const Text(
                 '+ Build Routine',
@@ -145,7 +154,8 @@ class CreateWorkoutPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => GenerateAIRoutinePopup(userId: userId),
+                    builder:
+                        (context) => GenerateAIRoutinePopup(userId: userId),
                   ),
                 );
               },
@@ -162,8 +172,5 @@ class CreateWorkoutPage extends StatelessWidget {
         ),
       ),
     );
-
   }
 }
-
-

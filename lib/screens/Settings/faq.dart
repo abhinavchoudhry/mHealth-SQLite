@@ -1,6 +1,7 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:flutter/material.dart';
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
 
 import '../exercise.dart';
 
@@ -28,15 +29,21 @@ class FAQPage extends StatelessWidget {
             Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
           } else if (index == 2) {
             // Navigate to ChallengesPage
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ExercisePage()),);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ExercisePage()),
+            );
+          } else if (index == 3) {
+            // Navigate to ChallengesPage
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
+            );
           }
           // Optional: handle Chat (index == 1), Exercise (index == 2)
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             label: 'Chat',
@@ -107,7 +114,6 @@ class FAQItem extends StatelessWidget {
     );
   }
 }
-
 
 AppBar appBar() {
   return AppBar(

@@ -118,7 +118,7 @@ class HealthRepository {
           final summary = await getSummaryForDate(date);
           weeklySummaries.add(summary);
         } catch (e) {
-          print('获取 ${date.toString()} 的数据时出错: $e');
+          print('error happens when retrieving ${date.toString()}: $e');
         }
       }
     }

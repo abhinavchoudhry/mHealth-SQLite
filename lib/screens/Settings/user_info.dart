@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
 import 'package:mhealthapp/screens/Settings/user_info/edit_chat_summary.dart';
 import 'package:mhealthapp/screens/Settings/user_info/edit_goal_setting.dart';
 import 'package:mhealthapp/screens/Settings/user_info/edit_health_info.dart';
@@ -34,6 +35,12 @@ class UserInfo extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ExercisePage()),
+            );
+          } else if (index == 3) {
+            // Navigate to ChallengesPage
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ActivityPage()),
             );
           }
           // Optional: handle Chat (index == 1), Exercise (index == 2)

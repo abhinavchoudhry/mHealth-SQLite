@@ -39,4 +39,8 @@ class ExerciseLibrary {
     warning: map['warning'],
     photoPosition: map['photo_position'],
   );
+
+  @override
+  String toString() =>
+      'ExerciseLibrary(id: $id, name: $exerciseName, targetArea: $targetArea)';
 }
