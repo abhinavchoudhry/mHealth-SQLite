@@ -70,7 +70,7 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 22, // bump this when you change schema
+      version: 24, // bump this when you change schema
       onCreate: (db, version) async {
         await _createAllTables(db);
       },

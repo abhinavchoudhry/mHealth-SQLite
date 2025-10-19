@@ -102,178 +102,149 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: 24),
+            // Exercise Goals
+            const Text(
+              'Exercise Goal(s):',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 4,
+                childAspectRatio: 3.5,
+              ),
+              itemCount: goals.length,
+              itemBuilder: (context, index) {
+                final goal = goals.keys.elementAt(index);
+                return Row(
                   children: [
-                    const SizedBox(height: 24),
-                    // Exercise Goals
-                    const Text(
-                      'Exercise Goal(s):',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 4,
-                            childAspectRatio: 3.5,
-                          ),
-                      itemCount: goals.length,
-                      itemBuilder: (context, index) {
-                        final goal = goals.keys.elementAt(index);
-                        return Row(
-                          children: [
-                            Checkbox(
-                              value: goals[goal],
-                              onChanged: (value) {
-                                setState(() {
-                                  goals[goal] = value ?? false;
-                                });
-                              },
-                              activeColor: const Color(0xFF6B578C),
-                            ),
-                            Expanded(
-                              child: Text(
-                                goal,
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        );
+                    Checkbox(
+                      value: goals[goal],
+                      onChanged: (value) {
+                        setState(() {
+                          goals[goal] = value ?? false;
+                        });
                       },
+                      activeColor: const Color(0xFF6B578C),
                     ),
-
-                    const SizedBox(height: 16),
-
-                    // Add custom goal
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: customGoalsController,
-                            decoration: InputDecoration(
-                              hintText: 'Add custom goal...',
-                              hintStyle: const TextStyle(
-                                color: Color(0xFF6B578C),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF6B578C),
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF6B578C),
-                                  width: 2,
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              contentPadding: const EdgeInsets.all(12),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: _addCustomGoal,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6B578C),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            minimumSize: const Size(60, 48),
-                          ),
-                          child: const Text('Add'),
-                        ),
-                      ],
+                    Expanded(
+                      child: Text(goal, style: const TextStyle(fontSize: 16)),
                     ),
-
-                    const SizedBox(height: 24),
-
-                    // Health Conditions
-                    const Text(
-                      'Preexisting Health Condition(s)',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Add any preexisting health conditions not already recorded in app.',
-                      style: TextStyle(fontSize: 12, color: Colors.black54),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      '(e.g., arthritis, heart conditions, joint pain, past injuries, etc.)',
-                      style: TextStyle(fontSize: 11, color: Colors.black45),
-                    ),
-                    const SizedBox(height: 12),
-
-                    TextField(
-                      controller: healthConditionsController,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText:
-                            'Enter health conditions separated by commas...',
-                        hintStyle: const TextStyle(color: Color(0xFF6B578C)),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Color(0xFF6B578C),
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Color(0xFF6B578C),
-                            width: 2,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        contentPadding: const EdgeInsets.all(12),
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Fitness Level
-                    const Text(
-                      'Current Fitness Level',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    ...['Beginner', 'Intermediate', 'Expert'].map((level) {
-                      return RadioListTile<String>(
-                        title: Text(level),
-                        value: level,
-                        groupValue: selectedFitnessLevel,
-                        activeColor: const Color(0xFF6B578C),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedFitnessLevel = value;
-                          });
-                        },
-                        contentPadding: EdgeInsets.zero,
-                      );
-                    }).toList(),
                   ],
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // Add custom goal
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: customGoalsController,
+                    decoration: InputDecoration(
+                      hintText: 'Add custom goal...',
+                      hintStyle: const TextStyle(color: Color(0xFF6B578C)),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Color(0xFF6B578C)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(
+                          color: Color(0xFF6B578C),
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding: const EdgeInsets.all(12),
+                    ),
+                  ),
                 ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _addCustomGoal,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6B578C),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    minimumSize: const Size(60, 48),
+                  ),
+                  child: const Text('Add'),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // Health Conditions
+            const Text(
+              'Preexisting Health Condition(s)',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Add any preexisting health conditions not already recorded in app.',
+              style: TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              '(e.g., arthritis, heart conditions, joint pain, past injuries, etc.)',
+              style: TextStyle(fontSize: 11, color: Colors.black45),
+            ),
+            const SizedBox(height: 12),
+
+            TextField(
+              controller: healthConditionsController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Enter health conditions separated by commas...',
+                hintStyle: const TextStyle(color: Color(0xFF6B578C)),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Color(0xFF6B578C)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Color(0xFF6B578C),
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.all(12),
               ),
             ),
+
+            const SizedBox(height: 24),
+
+            // Fitness Level
+            const Text(
+              'Current Fitness Level',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+
+            ...['Beginner', 'Intermediate', 'Expert'].map((level) {
+              return RadioListTile<String>(
+                title: Text(level),
+                value: level,
+                groupValue: selectedFitnessLevel,
+                activeColor: const Color(0xFF6B578C),
+                onChanged: (value) {
+                  setState(() {
+                    selectedFitnessLevel = value;
+                  });
+                },
+                contentPadding: EdgeInsets.zero,
+              );
+            }).toList(),
 
             // Next Button
             SizedBox(
@@ -295,7 +266,6 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
                 ),
               ),
             ),
-
             const SizedBox(height: 24),
           ],
         ),

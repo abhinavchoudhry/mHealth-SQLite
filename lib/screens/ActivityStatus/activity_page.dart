@@ -396,7 +396,7 @@ class _ActivityPageState extends State<ActivityPage> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  "Calories",
+                  "Kilocalories",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -568,7 +568,7 @@ class _ActivityPageState extends State<ActivityPage> {
                 _stats != null ? "${_stats!.steps}" : "–",
               ),
               _buildActivityCard(
-                "Calories",
+                "Kilocalories",
                 _stats != null ? "${_stats!.calories}" : "–",
               ),
               // GestureDetector(

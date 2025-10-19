@@ -193,11 +193,6 @@ class _ExercisePageState extends State<ExercisePage> {
               context,
               MaterialPageRoute(builder: (context) => HomePage()),
             );
-          } else if (index == 3) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ExercisePage()),
-            );
           }
           // Navigate to ChatPage
           // else if (index == 1) {

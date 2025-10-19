@@ -78,149 +78,151 @@ class _GenerateAIRoutinePopupState extends State<GenerateAIRoutinePopup> {
           IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 24),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 24),
 
-            // Header
-            const Text(
-              'Generate AI Workout Routine',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Create a personalized workout routine tailored to your specific needs and goals using AI.',
-              style: TextStyle(fontSize: 14, color: Colors.black87),
-            ),
-            const SizedBox(height: 20),
-
-            //Target Areas
-            const Text(
-              'Target Area(s) of Body:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 12),
-
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 4,
-                childAspectRatio: 4,
+              // Header
+              const Text(
+                'Generate AI Workout Routine',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
               ),
-              itemCount: targetAreas.length,
-              itemBuilder: (context, index) {
-                final area = targetAreas.keys.elementAt(index);
-                return Row(
-                  children: [
-                    Checkbox(
-                      value: targetAreas[area],
-                      onChanged: (value) {
-                        setState(() {
-                          targetAreas[area] = value ?? false;
-                        });
-                      },
-                      activeColor: const Color(0xFF6B578C),
-                    ),
-                    Expanded(
-                      child: Text(area, style: const TextStyle(fontSize: 16)),
-                    ),
-                  ],
-                );
-              },
-            ),
-
-            const SizedBox(height: 24),
-
-            // Workout Duration
-            const Text(
-              'Workout Duration',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: durationController,
-              keyboardType: TextInputType.number,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                hintText: 'Enter duration in minutes',
-                hintStyle: const TextStyle(color: Color(0xFF6B578C)),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Color(0xFF6B578C)),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(
-                    color: Color(0xFF6B578C),
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding: const EdgeInsets.all(12),
+              const SizedBox(height: 4),
+              const Text(
+                'Create a personalized workout routine tailored to your specific needs and goals using AI.',
+                style: TextStyle(fontSize: 14, color: Colors.black87),
               ),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              '*Enter number in minutes',
-              style: TextStyle(fontSize: 12, color: Colors.black54),
-            ),
+              const SizedBox(height: 20),
 
-            const SizedBox(height: 24),
+              //Target Areas
+              const Text(
+                'Target Area(s) of Body:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 12),
 
-            // Exercise Intensity
-            const Text(
-              'Exercise Intensity',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-
-            ...['Light', 'Moderate', 'Intense'].map((intensity) {
-              return RadioListTile<String>(
-                title: Text(intensity),
-                value: intensity,
-                groupValue: selectedIntensity,
-                activeColor: const Color(0xFF6B578C),
-                onChanged: (value) {
-                  setState(() {
-                    selectedIntensity = value;
-                  });
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 4,
+                  childAspectRatio: 4,
+                ),
+                itemCount: targetAreas.length,
+                itemBuilder: (context, index) {
+                  final area = targetAreas.keys.elementAt(index);
+                  return Row(
+                    children: [
+                      Checkbox(
+                        value: targetAreas[area],
+                        onChanged: (value) {
+                          setState(() {
+                            targetAreas[area] = value ?? false;
+                          });
+                        },
+                        activeColor: const Color(0xFF6B578C),
+                      ),
+                      Expanded(
+                        child: Text(area, style: const TextStyle(fontSize: 16)),
+                      ),
+                    ],
+                  );
                 },
-                contentPadding: EdgeInsets.zero,
-              );
-            }).toList(),
+              ),
 
-            const Spacer(),
+              const SizedBox(height: 24),
 
-            // Next Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: canProceed ? _onNext : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      canProceed ? const Color(0xFF6B578C) : Colors.grey,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
+              // Workout Duration
+              const Text(
+                'Workout Duration',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: durationController,
+                keyboardType: TextInputType.number,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  hintText: 'Enter duration in minutes',
+                  hintStyle: const TextStyle(color: Color(0xFF6B578C)),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Color(0xFF6B578C)),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  minimumSize: const Size.fromHeight(48),
-                ),
-                child: const Text(
-                  'Next',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(
+                      color: Color(0xFF6B578C),
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  contentPadding: const EdgeInsets.all(12),
                 ),
               ),
-            ),
+              const SizedBox(height: 4),
+              const Text(
+                '*Enter number in minutes',
+                style: TextStyle(fontSize: 12, color: Colors.black54),
+              ),
 
-            const SizedBox(height: 24),
-          ],
+              const SizedBox(height: 24),
+
+              // Exercise Intensity
+              const Text(
+                'Exercise Intensity',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+
+              ...['Light', 'Moderate', 'Intense'].map((intensity) {
+                return RadioListTile<String>(
+                  title: Text(intensity),
+                  value: intensity,
+                  groupValue: selectedIntensity,
+                  activeColor: const Color(0xFF6B578C),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedIntensity = value;
+                    });
+                  },
+                  contentPadding: EdgeInsets.zero,
+                );
+              }).toList(),
+
+              // Next Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: canProceed ? _onNext : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        canProceed ? const Color(0xFF6B578C) : Colors.grey,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    minimumSize: const Size.fromHeight(48),
+                  ),
+                  child: const Text(
+                    'Next',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
+
       // Bottom Navigation Bar
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
