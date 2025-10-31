@@ -1,8 +1,10 @@
 import 'package:mhealthapp/screens/ActivityStatus/activity_page.dart';
 import 'package:mhealthapp/screens/home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mhealthapp/db_helper.dart';
 
 import 'gen_AI_workout_3.dart';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 
 class UserGoalsPopup extends StatefulWidget {
@@ -15,21 +17,61 @@ class UserGoalsPopup extends StatefulWidget {
 }
 
 class _UserGoalsPopupState extends State<UserGoalsPopup> {
-  final List<String> selectedGoals = [];
-  final TextEditingController customGoalsController = TextEditingController();
-  final TextEditingController healthConditionsController =
-      TextEditingController();
-  String? selectedFitnessLevel;
-
-  final Map<String, bool> goals = {
+  Map<String, bool> goals = {
     'Weight Loss': false,
     'Muscle Gain': false,
     'Cardiovascular Fitness': false,
     'Functional Fitness': false,
   };
+  int? userId;
+  final List<String> selectedGoals = [];
+  final TextEditingController customGoalsController = TextEditingController();
+  final TextEditingController healthConditionsController =
+      TextEditingController();
+  String? selectedFitnessLevel;
+  String? healthConditions = '';
 
-  bool get hasSelectedGoal => goals.values.any((selected) => selected);
-  bool get canProceed => hasSelectedGoal && selectedFitnessLevel != null;
+  @override
+  void initState() {
+    super.initState();
+    loadUserIdAndData();
+  }
+
+  Future<void> loadUserIdAndData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final int? id = prefs.getInt('userId');
+    final dbHelper = DBHelper();
+
+    if (id == null) {
+      print('No userId found in SharedPreferences');
+      return;
+    } else {
+      setState(() {
+        userId = id;
+      });
+    }
+    ;
+
+    final Map<String, dynamic>? data = await dbHelper.getUserById(id);
+    if (data != null) {
+      print('Username: ${data['username']}');
+      print('Email: ${data['email']}');
+      setState(() {
+        goals = Map<String, bool>.from(jsonDecode(data['custom_goals']));
+        // Store or display in UI as needed
+        healthConditions = data['health_conditions'];
+        healthConditionsController.text = healthConditions ?? '';
+      });
+    } else {
+      print('User not found');
+      return;
+    }
+  }
+
+  bool get hasSelectedGoal => goals.values.any((selected) => selected == true);
+
+  bool get canProceed =>
+      hasSelectedGoal && selectedFitnessLevel != null && userId != null;
 
   void _addCustomGoal() {
     final custom = customGoalsController.text.trim();
@@ -41,7 +83,7 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
     }
   }
 
-  void _onNext() {
+  Future<void> _onNext() async {
     if (!canProceed) return;
 
     final selectedGoalsList =
@@ -49,6 +91,8 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
             .where((entry) => entry.value)
             .map((entry) => entry.key)
             .toList();
+
+    final prehealthconditions = healthConditionsController.text.trim();
 
     // Parse health conditions from text input
     final healthConditionsList =
@@ -59,6 +103,13 @@ class _UserGoalsPopupState extends State<UserGoalsPopup> {
                 .map((condition) => condition.trim())
                 .where((condition) => condition.isNotEmpty)
                 .toList();
+
+    final dbHelper = DBHelper();
+
+    await dbHelper.updateUser(userId!, {
+      "custom_goals": jsonEncode(goals), // Map<String,bool>
+      "health_conditions": prehealthconditions,
+    });
 
     final updatedData = Map<String, dynamic>.from(widget.workoutData);
     updatedData['goals'] = selectedGoalsList;

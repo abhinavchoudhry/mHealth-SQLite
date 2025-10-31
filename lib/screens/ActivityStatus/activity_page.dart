@@ -7,6 +7,7 @@ import '../home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mhealthapp/db_helper.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:mhealthapp/health/health_package.dart';
 
 DateTime _mondayOf(DateTime d) => d.subtract(Duration(days: d.weekday - 1));
 
@@ -175,6 +176,55 @@ class _ActivityPageState extends State<ActivityPage> {
     }
   }
 
+  Future<void> syncTodayAndYesterdayToSQLite() async {
+    print("syncTodayAndYesterdayToSQLite started");
+    final prefs = await SharedPreferences.getInstance();
+    final int? userId = prefs.getInt('userId');
+    final dbHelper = DBHelper();
+
+    if (userId == null) {
+      print("No userId in SharedPreferences; aborting sync.");
+      return;
+    }
+
+    final todaySummary = await HealthAPI.getTodaySummary();
+    final yesterdaySummary = await HealthAPI.getYesterdaySummary();
+    print("Fetched today and yesterday summaries.");
+
+    final todayworkouts = await HealthRepository().getTodayworkout();
+    final yesterdayworkouts = await HealthRepository().getYesterdayworkout();
+
+    await dbHelper.insert(
+      'daily_activity_fact',
+      todaySummary.toMap(userId: userId),
+    );
+
+    await dbHelper.insert(
+      'daily_activity_fact',
+      yesterdaySummary.toMap(userId: userId),
+    );
+
+    for (var session in todayworkouts) {
+      await dbHelper.insert(
+        'workout_session_fact',
+        session.toMap(userId: userId),
+      );
+    }
+
+    for (var session in yesterdayworkouts) {
+      await dbHelper.insert(
+        'workout_session_fact',
+        session.toMap(userId: userId),
+      );
+    }
+
+    await _loadWorkoutLogs();
+    await _loadStats();
+    print("Inserted today and yesterday's workouts and daily stats.");
+
+    print("Health data synced at ${DateTime.now()}");
+  }
+
   @override
   void initState() {
     super.initState();
@@ -272,19 +322,17 @@ class _ActivityPageState extends State<ActivityPage> {
     }
 
     if (_error != null) {
-      return Expanded(
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(_error!, textAlign: TextAlign.center),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: _loadWorkoutLogs,
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_error!, textAlign: TextAlign.center),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: _loadWorkoutLogs,
+              child: const Text('Retry'),
+            ),
+          ],
         ),
       );
     }
@@ -366,6 +414,23 @@ class _ActivityPageState extends State<ActivityPage> {
             onPressed: _inserting ? null : _insertMockDataAndRefresh,
           ),
         ),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          child: ElevatedButton.icon(
+            onPressed: () {
+              syncTodayAndYesterdayToSQLite();
+            },
+            icon: const Icon(Icons.sync),
+            label: const Text('Sync Today & Yesterday from Health API'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepPurple,
+              foregroundColor: Colors.white,
+              minimumSize: const Size.fromHeight(44),
+            ),
+          ),
+        ),
+
         // Header row
         Container(
           color: Colors.deepPurple.shade50,
@@ -380,7 +445,7 @@ class _ActivityPageState extends State<ActivityPage> {
                 ),
               ),
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: Text(
                   "Date",
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -420,9 +485,9 @@ class _ActivityPageState extends State<ActivityPage> {
                 child: Row(
                   children: [
                     Expanded(flex: 3, child: Text(log["exercise"]!)),
-                    Expanded(flex: 2, child: Text(log["date"]!)),
+                    Expanded(flex: 3, child: Text(log["date"]!)),
                     Expanded(flex: 2, child: Text("${log["time"]} min")),
-                    Expanded(flex: 2, child: Text("${log["cal"]} cal")),
+                    Expanded(flex: 2, child: Text("${log["cal"]} kcal")),
                   ],
                 ),
               );
@@ -517,6 +582,22 @@ class _ActivityPageState extends State<ActivityPage> {
             ),
           ),
 
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                syncTodayAndYesterdayToSQLite();
+              },
+              icon: const Icon(Icons.sync),
+              label: const Text('Sync Today & Yesterday from Health API'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(44),
+              ),
+            ),
+          ),
+
           // Line chart placeholder
           // SizedBox(
           //   height: 220,
@@ -599,49 +680,49 @@ class _ActivityPageState extends State<ActivityPage> {
           const SizedBox(height: 20),
 
           // Sedentary vs Active bar
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    flex: ((_stats?.sedentaryHours ?? 0) * 10).toInt(),
-                    child: Container(
-                      height: 20,
-                      color: Colors.grey.shade400,
-                      child: Center(
-                        child: Text(
-                          _stats != null
-                              ? "${_stats!.sedentaryHours.toStringAsFixed(1)} hrs"
-                              : "–",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: ((_stats?.activeHours ?? 0) * 10).toInt(),
-                    child: Container(
-                      height: 20,
-                      color: Colors.deepPurple,
-                      child: Center(
-                        child: Text(
-                          _stats != null
-                              ? "${_stats!.activeHours.toStringAsFixed(1)} hrs"
-                              : "–",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                "Sedentary                                                             Active",
-              ),
-            ],
-          ),
+          // Column(
+          //   crossAxisAlignment: CrossAxisAlignment.start,
+          //   children: [
+          //     Row(
+          //       children: [
+          //         Expanded(
+          //           flex: ((_stats?.sedentaryHours ?? 0) * 10).toInt(),
+          //           child: Container(
+          //             height: 20,
+          //             color: Colors.grey.shade400,
+          //             child: Center(
+          //               child: Text(
+          //                 _stats != null
+          //                     ? "${_stats!.sedentaryHours.toStringAsFixed(1)} hrs"
+          //                     : "–",
+          //                 style: TextStyle(color: Colors.white),
+          //               ),
+          //             ),
+          //           ),
+          //         ),
+          //         Expanded(
+          //           flex: ((_stats?.activeHours ?? 0) * 10).toInt(),
+          //           child: Container(
+          //             height: 20,
+          //             color: Colors.deepPurple,
+          //             child: Center(
+          //               child: Text(
+          //                 _stats != null
+          //                     ? "${_stats!.activeHours.toStringAsFixed(1)} hrs"
+          //                     : "–",
+          //                 style: TextStyle(color: Colors.white),
+          //               ),
+          //             ),
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //     const SizedBox(height: 4),
+          //     const Text(
+          //       "Sedentary                                                             Active",
+          //     ),
+          //   ],
+          // ),
         ],
       ),
     );

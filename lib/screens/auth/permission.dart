@@ -3,6 +3,7 @@ import 'package:mhealthapp/health/health_package.dart';
 import 'package:mhealthapp/screens/home_page.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:mhealthapp/services/health_data_sync_service.dart';
+import 'dart:io' show Platform;
 
 class PermissionPage extends StatefulWidget {
   const PermissionPage({Key? key}) : super(key: key);
@@ -22,6 +23,7 @@ class _PermissionPageState extends State<PermissionPage> {
     });
 
     try {
+      bool granted = false;
       bool isInstalled = await HealthPermissions.isHealthConnectInstalled();
       if (!isInstalled) {
         setState(() {
@@ -34,34 +36,47 @@ class _PermissionPageState extends State<PermissionPage> {
         return;
       }
 
-      bool granted = await HealthPermissions.requestPermissions();
-      print("Health Connect permissions granted: $granted");
-      if (granted) {
-        if (mounted) {
-          await HealthDataSyncService.syncToSQLite();
-          await Workmanager().registerPeriodicTask(
-            "healthSyncTask",
-            "syncHealthData",
-            frequency: const Duration(minutes: 30),
-          );
-          print("Today's periodic task registered");
-          await Workmanager().registerPeriodicTask(
-            "yesterdayhealthSyncTask",
-            "syncYesterdayHealthData",
-            frequency: const Duration(hours: 24),
-          );
-          print("Yesterday's Periodic task registered");
-
-          print("Permissions granted. Navigating to /home");
-          Navigator.of(context).pushReplacementNamed('/home');
-        }
+      if (Platform.isIOS) {
+        granted = await HealthPermissions.requestPermissions();
       } else {
-        setState(() {
-          _errorMessage =
-              'Permission denied. Please grant permissions manually in Health Connect';
-          _isLoading = false;
-        });
-        print("Permissions denied in Health Connect");
+        bool? hasPerm = await HealthPermissions.checkPermissions();
+        if (hasPerm == true) {
+          print("Already have Health Connect permissions.");
+          granted = true;
+        } else {
+          print(" No permissions -> requesting now...");
+          granted = await HealthPermissions.requestPermissions();
+        }
+        ;
+
+        print("Health Connect permissions granted: $granted");
+        if (granted) {
+          if (mounted) {
+            await HealthDataSyncService.syncToSQLite();
+            await Workmanager().registerPeriodicTask(
+              "healthSyncTask",
+              "syncHealthData",
+              frequency: const Duration(minutes: 30),
+            );
+            print("Today's periodic task registered");
+            await Workmanager().registerPeriodicTask(
+              "yesterdayhealthSyncTask",
+              "syncYesterdayHealthData",
+              frequency: const Duration(hours: 24),
+            );
+            print("Yesterday's Periodic task registered");
+
+            print("Permissions granted. Navigating to /home");
+            Navigator.of(context).pushReplacementNamed('/home');
+          }
+        } else {
+          setState(() {
+            _errorMessage =
+                'Permission denied. Please grant permissions manually in Health Connect';
+            _isLoading = false;
+          });
+          print("Permissions denied in Health Connect");
+        }
       }
     } catch (e) {
       setState(() {

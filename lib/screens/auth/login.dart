@@ -5,6 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mhealthapp/db_helper.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
+import 'package:mhealthapp/health/health_package.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:mhealthapp/services/health_data_sync_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,6 +20,8 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _rememberMe = false;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   Future<void> _login() async {
     final email = _emailController.text.trim();
@@ -41,7 +46,8 @@ class _LoginPageState extends State<LoginPage> {
     if (user != null && user['pwd'] == hashedPassword) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('userId', user['user_dim_id']);
-      Navigator.pushReplacementNamed(context, '/startup'); // or your main page
+      await _requestPermissions();
+      // Navigator.pushReplacementNamed(context, '/startup');
     } else {
       _showError("Invalid email or password");
     }
@@ -51,6 +57,83 @@ class _LoginPageState extends State<LoginPage> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _requestPermissions() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      bool isInstalled = await HealthPermissions.isHealthConnectInstalled();
+      if (!isInstalled) {
+        setState(() {
+          _errorMessage =
+              'Health Connect is not installed. Please install "Health Connect by Android" from Google Play';
+          _isLoading = false;
+        });
+        print("Health Connect not installed. Showing dialog.");
+        _showHealthConnectDialog();
+        return;
+      }
+
+      bool granted = await HealthPermissions.requestPermissions();
+      print("Health Connect permissions granted: $granted");
+      if (granted) {
+        if (mounted) {
+          await HealthDataSyncService.syncToSQLite();
+          await Workmanager().registerPeriodicTask(
+            "healthSyncTask",
+            "syncHealthData",
+            frequency: const Duration(minutes: 30),
+          );
+          print("Today's periodic task registered");
+          await Workmanager().registerPeriodicTask(
+            "yesterdayhealthSyncTask",
+            "syncYesterdayHealthData",
+            frequency: const Duration(hours: 24),
+          );
+          print("Yesterday's Periodic task registered");
+
+          print("Permissions granted. Navigating to /home");
+          Navigator.of(context).pushReplacementNamed('/home');
+        }
+      } else {
+        setState(() {
+          _errorMessage =
+              'Permission denied. Please grant permissions manually in Health Connect';
+          _isLoading = false;
+        });
+        Navigator.pushReplacementNamed(context, '/startup');
+        print("Permissions denied in Health Connect");
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error requesting permissions: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showHealthConnectDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Health Connect Required'),
+            content: const Text(
+              'Health Connect is Android\'s official health data platform. It needs to be installed to use health features.\n\n'
+              'Please search and install "Health Connect by Android" from Google Play Store.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+    );
   }
 
   @override

@@ -15,6 +15,9 @@ class HealthPermissions {
     HealthDataType.ACTIVE_ENERGY_BURNED,
     HealthDataType.WORKOUT,
     HealthDataType.DISTANCE_WALKING_RUNNING,
+    HealthDataType.SLEEP_DEEP,
+    HealthDataType.SLEEP_LIGHT,
+    HealthDataType.SLEEP_REM,
   ];
 
   static const List<HealthDataType> _androidDataTypes = [
@@ -26,6 +29,10 @@ class HealthPermissions {
     HealthDataType.DISTANCE_DELTA,
     HealthDataType.ACTIVE_ENERGY_BURNED,
     HealthDataType.WORKOUT,
+    HealthDataType.SLEEP_DEEP,
+    HealthDataType.SLEEP_LIGHT,
+    HealthDataType.SLEEP_REM,
+    HealthDataType.TOTAL_CALORIES_BURNED,
     // HealthDataType.DISTANCE_WALKING_RUNNING,
   ];
 
@@ -40,7 +47,6 @@ class HealthPermissions {
         print('Health Connect not available');
         return false;
       }
-
       // Only check READ permissions for navigation to dashboard
       bool? hasPermissions = await _health.hasPermissions(_requiredDataTypes);
       print('Has read permissions: $hasPermissions');

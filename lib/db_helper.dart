@@ -70,7 +70,7 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 24, // bump this when you change schema
+      version: 30, // bump this when you change schema
       onCreate: (db, version) async {
         await _createAllTables(db);
       },
@@ -132,6 +132,7 @@ class DBHelper {
       max_heart_rate INTEGER,
       sleep_deep_minutes INTEGER,
       sleep_light_minutes INTEGER,
+      sleep_rem_minutes INTEGER,
       FOREIGN KEY(user_id) REFERENCES user_dim(user_dim_id),
       UNIQUE(user_id, date)
     )
@@ -360,18 +361,34 @@ class DBHelper {
     final cleanedUser = <String, dynamic>{};
 
     user.forEach((key, value) {
-      if (key == "weight" || key == "height" || key == "RHR") {
-        cleanedUser[key] =
-            (value is num)
-                ? value.toDouble()
-                : double.parse(value.toString().trim());
+      if (value == null || value.toString().trim().isEmpty) {
+        cleanedUser[key] = null; // <-- keep null as null
+        return;
       }
-      if (key == "age" || key == "ai_avatar_id") {
-        cleanedUser[key] = int.parse(value);
-      } else {
-        cleanedUser[key] = value;
+
+      switch (key) {
+        case "weight":
+        case "height":
+        case "RHR":
+          // Safely parse doubles and preserve null instead of forcing 0
+          cleanedUser[key] =
+              (value is num)
+                  ? value.toDouble()
+                  : double.tryParse(value.toString().trim());
+          break;
+
+        case "age":
+        case "ai_avatar_id":
+          cleanedUser[key] =
+              (value is int) ? value : int.tryParse(value.toString().trim());
+          break;
+
+        default:
+          cleanedUser[key] = value;
       }
     });
+
+    print('Cleaned user before insert: $cleanedUser');
 
     return await dbClient.insert('user_dim', cleanedUser);
   }

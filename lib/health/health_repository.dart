@@ -42,11 +42,11 @@ class HealthRepository {
       );
 
       print('Found ${healthData.length} health data points');
-      for (var point in healthData) {
-        print(
-          '${point.type.name}: ${point.value} ${point.unit.name} from ${point.dateFrom} to ${point.dateTo}',
-        );
-      }
+      // for (var point in healthData) {
+      //   print(
+      //     '${point.type.name}: ${point.value} ${point.unit.name} from ${point.dateFrom} to ${point.dateTo}',
+      //   );
+      // }
 
       return healthData
           .map((point) => HealthDataModel.fromHealthDataPoint(point))

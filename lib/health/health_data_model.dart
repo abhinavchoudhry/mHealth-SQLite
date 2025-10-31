@@ -93,6 +93,8 @@ class HealthDataModel {
         return '${value.toInt()} minutes';
       case HealthDataType.SLEEP_LIGHT:
         return '${value.toInt()} minutes';
+      case HealthDataType.SLEEP_REM:
+        return '${value.toInt()} minutes';
       case HealthDataType.EXERCISE_TIME:
         return '${value.toInt()} minutes';
       case HealthDataType.APPLE_STAND_HOUR:
@@ -101,6 +103,8 @@ class HealthDataModel {
         return '${value.toInt()} seconds';
       case HealthDataType.EXERCISE_TIME:
         return '${value.toInt()} minutes';
+      case HealthDataType.TOTAL_CALORIES_BURNED:
+        return '${value.toInt()} calories';
       default:
         return '${value.toStringAsFixed(1)} ${unit.name}';
     }
@@ -144,6 +148,8 @@ class HealthSummary {
   final int? maxHeartRate;
   final int? sleep_deep_minutes;
   final int? sleep_light_minutes;
+  final int? sleep_rem_minutes;
+  final int? totalEnergyBurned;
 
   HealthSummary({
     required this.totalSteps,
@@ -158,6 +164,8 @@ class HealthSummary {
     this.maxHeartRate,
     this.sleep_deep_minutes,
     this.sleep_light_minutes,
+    this.sleep_rem_minutes,
+    this.totalEnergyBurned,
   });
 
   factory HealthSummary.fromHealthData(
@@ -173,8 +181,10 @@ class HealthSummary {
     int maxHeartRate = 0;
     int sleep_deep_minutes = 0;
     int sleep_light_minutes = 0;
+    int sleep_rem_minutes = 0;
     int exerciseMinutes = 0;
     int movetime = 0;
+    int totalEnergyBurned = 0;
 
     for (var item in data) {
       switch (item.type) {
@@ -207,11 +217,17 @@ class HealthSummary {
         case HealthDataType.SLEEP_LIGHT:
           sleep_light_minutes += item.value.toInt();
           break;
+        case HealthDataType.SLEEP_REM:
+          sleep_rem_minutes += item.value.toInt();
+          break;
         case HealthDataType.EXERCISE_TIME:
           exerciseMinutes += item.value.toInt();
           break;
         case HealthDataType.APPLE_MOVE_TIME:
           movetime += item.value.toInt();
+          break;
+        case HealthDataType.TOTAL_CALORIES_BURNED:
+          totalEnergyBurned += item.value.toInt();
           break;
         default:
           break;
@@ -221,10 +237,16 @@ class HealthSummary {
     return HealthSummary(
       totalSteps: steps,
       totalDistance: distance / 1000,
-      totalCalories: calories,
+      totalCalories: calories > 0 ? calories : totalEnergyBurned,
       averageHeartRate:
           heartRateCount > 0 ? (heartRateSum / heartRateCount).round() : 0,
-      sleepHours: sleep,
+      sleepHours:
+          sleep > 0
+              ? sleep
+              : ((sleep_deep_minutes +
+                      sleep_light_minutes +
+                      sleep_rem_minutes) /
+                  60.0),
       date: date,
       maxHeartRate: maxHeartRate,
       exerciseMinutes: exerciseMinutes,
@@ -232,6 +254,7 @@ class HealthSummary {
       activeMinutes: exerciseMinutes,
       sleep_deep_minutes: sleep_deep_minutes,
       sleep_light_minutes: sleep_light_minutes,
+      sleep_rem_minutes: sleep_rem_minutes,
     );
   }
 
@@ -250,6 +273,7 @@ class HealthSummary {
       'max_heart_rate': maxHeartRate,
       'sleep_deep_minutes': sleep_deep_minutes,
       'sleep_light_minutes': sleep_light_minutes,
+      'sleep_rem_minutes': sleep_rem_minutes,
     };
   }
 }
@@ -361,7 +385,7 @@ class WorkoutSession {
               return p.dateFrom.isAfter(workoutPoint.dateFrom) &&
                   p.dateTo.isBefore(workoutPoint.dateTo);
             })
-            .map((p) => (p.value as NumericHealthValue).numericValue)
+            .map((p) => p.value as double)
             .toList();
 
     double? avgHr;
